@@ -28,7 +28,7 @@ class ContentView extends StatelessWidget {
         return GridView.builder(
           itemCount: files.length,
           padding: const EdgeInsets.symmetric(horizontal: 12),
-          scrollCacheExtent: ScrollCacheExtent.viewport(50),
+          scrollCacheExtent: ScrollCacheExtent.viewport(.5),
           gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
             maxCrossAxisExtent: _cacheWidth,
             mainAxisSpacing: 8,
