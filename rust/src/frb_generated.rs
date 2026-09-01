@@ -189,6 +189,13 @@ impl SseDecode for String {
     }
 }
 
+impl SseDecode for bool {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        deserializer.cursor.read_u8().unwrap() != 0
+    }
+}
+
 impl SseDecode for i32 {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -208,6 +215,7 @@ impl SseDecode for crate::api::model::ImageFile {
         let mut var_orientation = <crate::api::model::ImageOrientation>::sse_decode(deserializer);
         let mut var_modified = <u64>::sse_decode(deserializer);
         let mut var_size = <u64>::sse_decode(deserializer);
+        let mut var_like = <bool>::sse_decode(deserializer);
         return crate::api::model::ImageFile {
             id: var_id,
             name: var_name,
@@ -218,6 +226,7 @@ impl SseDecode for crate::api::model::ImageFile {
             orientation: var_orientation,
             modified: var_modified,
             size: var_size,
+            like: var_like,
         };
     }
 }
@@ -287,13 +296,6 @@ impl SseDecode for usize {
     }
 }
 
-impl SseDecode for bool {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
-        deserializer.cursor.read_u8().unwrap() != 0
-    }
-}
-
 fn pde_ffi_dispatcher_primary_impl(
     func_id: i32,
     port: flutter_rust_bridge::for_generated::MessagePort,
@@ -338,6 +340,7 @@ impl flutter_rust_bridge::IntoDart for crate::api::model::ImageFile {
             self.orientation.into_into_dart().into_dart(),
             self.modified.into_into_dart().into_dart(),
             self.size.into_into_dart().into_dart(),
+            self.like.into_into_dart().into_dart(),
         ]
         .into_dart()
     }
@@ -382,6 +385,13 @@ impl SseEncode for String {
     }
 }
 
+impl SseEncode for bool {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        serializer.cursor.write_u8(self as _).unwrap();
+    }
+}
+
 impl SseEncode for i32 {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -401,6 +411,7 @@ impl SseEncode for crate::api::model::ImageFile {
         <crate::api::model::ImageOrientation>::sse_encode(self.orientation, serializer);
         <u64>::sse_encode(self.modified, serializer);
         <u64>::sse_encode(self.size, serializer);
+        <bool>::sse_encode(self.like, serializer);
     }
 }
 
@@ -469,13 +480,6 @@ impl SseEncode for usize {
             .cursor
             .write_u64::<NativeEndian>(self as _)
             .unwrap();
-    }
-}
-
-impl SseEncode for bool {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
-        serializer.cursor.write_u8(self as _).unwrap();
     }
 }
 

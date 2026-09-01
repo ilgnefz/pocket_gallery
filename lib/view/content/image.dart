@@ -23,7 +23,8 @@ class ImageView extends StatelessWidget {
             mouseCursor: SystemMouseCursors.click,
             onTap: () => previewImage(context, image),
             onDoubleTap: () => setWallpaper(path: image.path),
-            onSecondaryTap: () async => await findImage(image),
+            onSecondaryTap: () async => await likeImage(image),
+            onLongPress: () async => await findImage(image),
             child: ShadowWidget(
               blurRadius: 4,
               child: Center(

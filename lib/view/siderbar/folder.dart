@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:pocket_gallery/component/close.dart';
 import 'package:pocket_gallery/service/app.dart';
 import 'package:pocket_gallery/service/debounce.dart';
-import 'package:pocket_gallery/store/file.dart';
 import 'package:pocket_gallery/store/filter.dart';
 import 'package:signals/signals_flutter.dart';
 

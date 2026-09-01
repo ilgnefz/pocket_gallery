@@ -19,8 +19,9 @@ class ImageFile {
   final ImageOrientation orientation;
   final int modified;
   final int size;
+  bool like;
 
-  const ImageFile({
+  ImageFile({
     required this.id,
     required this.name,
     required this.folder,
@@ -30,6 +31,7 @@ class ImageFile {
     required this.orientation,
     required this.modified,
     required this.size,
+    required this.like,
   });
 
   @override
@@ -42,7 +44,8 @@ class ImageFile {
       height.hashCode ^
       orientation.hashCode ^
       modified.hashCode ^
-      size.hashCode;
+      size.hashCode ^
+      like.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -57,7 +60,8 @@ class ImageFile {
           height == other.height &&
           orientation == other.orientation &&
           modified == other.modified &&
-          size == other.size;
+          size == other.size &&
+          like == other.like;
 }
 
 enum ImageOrientation { all, landscape, portrait, square, other }

@@ -75,6 +75,7 @@ Future<void> loadImages() async {
         orientation: ImageOrientation.values[item.orientation],
         modified: int.parse(item.modified),
         size: item.size,
+        like: item.like,
       ),
     );
   }
@@ -92,6 +93,11 @@ void previewImage(BuildContext context, ImageFile image) => showDialog(
 
 Future<void> findImage(ImageFile image) async =>
     await Process.run('explorer.exe', ['/select,', image.path]);
+
+Future<void> likeImage(ImageFile image) async {
+  FileStore.updateLike(image);
+  await DatabaseService.updateLike(image.id, !image.like);
+}
 
 Future<void> removeFolder(String folder) async {
   FileStore.remove(folder);

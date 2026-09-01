@@ -1,6 +1,6 @@
 use std::{
     os::windows::fs::MetadataExt,
-    path::{Path, PathBuf},
+    path::Path,
 };
 
 use jwalk::WalkDir;
@@ -89,6 +89,7 @@ fn get_image_info(path: &Path) -> ImageFile {
         orientation,
         modified,
         size,
+        like: false,
     }
 }
 

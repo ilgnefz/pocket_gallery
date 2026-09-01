@@ -21,6 +21,8 @@ pub struct ImageFile {
     pub orientation: ImageOrientation,
     pub modified: u64,
     pub size: u64,
+    #[frb(non_final)]
+    pub like: bool,
 }
 
 // #[derive(Debug)]

@@ -1,3 +1,4 @@
+import 'package:drift/drift.dart';
 import 'package:pocket_gallery/db/dao.dart';
 import 'package:pocket_gallery/src/rust/api/model.dart';
 
@@ -26,6 +27,7 @@ class DatabaseService {
         orientation: file.orientation.index,
         modified: file.modified.toString(),
         size: file.size,
+        like: file.like,
       ),
     );
   }
@@ -38,4 +40,9 @@ class DatabaseService {
   static Future<void> removeById(String id) async => await (_database.delete(
     _database.imageItem,
   )..where((e) => e.id.equals(id))).go();
+
+  static Future<void> updateLike(String id, bool like) async {
+    await (_database.update(_database.imageItem)..where((e) => e.id.equals(id)))
+        .write(ImageItemCompanion(like: Value(like)));
+  }
 }

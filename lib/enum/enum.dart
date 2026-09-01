@@ -1,4 +1,3 @@
-
 import 'package:pocket_gallery/src/rust/api/model.dart';
 
 extension ImageOrientationExtension on ImageOrientation {
@@ -61,4 +60,23 @@ extension SortTypeExtension on SortType {
   bool get isSizeDescending => this == SortType.sizeDescending;
   bool get isOrientationAscending => this == SortType.orientationAscending;
   bool get isOrientationDescending => this == SortType.orientationDescending;
+}
+
+enum ShowType { all, like, unlike }
+
+extension ShowTypeExtension on ShowType {
+  String get label {
+    switch (this) {
+      case ShowType.all:
+        return '全部';
+      case ShowType.like:
+        return '收藏';
+      case ShowType.unlike:
+        return '非收藏';
+    }
+  }
+
+  bool get isAll => this == ShowType.all;
+  bool get isLike => this == ShowType.like;
+  bool get isUnlike => this == ShowType.unlike;
 }

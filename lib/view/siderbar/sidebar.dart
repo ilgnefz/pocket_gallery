@@ -36,6 +36,26 @@ class SidebarView extends StatelessWidget {
                     spacing: 4.0,
                     crossAxisAlignment: .start,
                     children: [
+                      SidebarTitle(title: '显示'),
+                      SignalBuilder(
+                        builder: (_) => Wrap(
+                          spacing: 12.0,
+                          runSpacing: 4.0,
+                          children: ShowType.values
+                              .map(
+                                (e) => SidebarChip(
+                                  label: e.label,
+                                  selected: FilterStore.show() == e,
+                                  onTap: () => SchedulerBinding.instance
+                                      .addPostFrameCallback(
+                                        (_) => FilterStore.updateShow(e),
+                                      ),
+                                ),
+                              )
+                              .toList(),
+                        ),
+                      ),
+                      SizedBox(height: 8.0),
                       SidebarTitle(title: '排序'),
                       SignalBuilder(
                         builder: (_) => Wrap(

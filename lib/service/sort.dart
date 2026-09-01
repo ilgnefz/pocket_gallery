@@ -1,3 +1,5 @@
+// ignore_for_file: constant_identifier_names
+// ignore_for_file: non_constant_identifier_names
 import 'package:lpinyin/lpinyin.dart';
 
 class SortService {
@@ -201,8 +203,9 @@ class SortService {
     int getCharType(String s) {
       final code = s.codeUnitAt(0);
       if (isCode_num(code)) return 0;
-      if ((code >= 65 && code <= 90) || (code >= 97 && code <= 122))
+      if ((code >= 65 && code <= 90) || (code >= 97 && code <= 122)) {
         return 1; // A-Z, a-z
+      }
       if (isChinese(code)) return 2; // 中文字符
       return 3; // 特殊符号等
     }

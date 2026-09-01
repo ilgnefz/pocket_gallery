@@ -94,6 +94,18 @@ class $ImageItemTable extends ImageItem
     type: DriftSqlType.int,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _likeMeta = const VerificationMeta('like');
+  @override
+  late final GeneratedColumn<bool> like = GeneratedColumn<bool>(
+    'like',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("like" IN (0, 1))',
+    ),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -105,6 +117,7 @@ class $ImageItemTable extends ImageItem
     orientation,
     modified,
     size,
+    like,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -190,6 +203,14 @@ class $ImageItemTable extends ImageItem
     } else if (isInserting) {
       context.missing(_sizeMeta);
     }
+    if (data.containsKey('like')) {
+      context.handle(
+        _likeMeta,
+        like.isAcceptableOrUnknown(data['like']!, _likeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_likeMeta);
+    }
     return context;
   }
 
@@ -235,6 +256,10 @@ class $ImageItemTable extends ImageItem
         DriftSqlType.int,
         data['${effectivePrefix}size'],
       )!,
+      like: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}like'],
+      )!,
     );
   }
 
@@ -254,6 +279,7 @@ class ImageItemData extends DataClass implements Insertable<ImageItemData> {
   final int orientation;
   final String modified;
   final int size;
+  final bool like;
   const ImageItemData({
     required this.id,
     required this.name,
@@ -264,6 +290,7 @@ class ImageItemData extends DataClass implements Insertable<ImageItemData> {
     required this.orientation,
     required this.modified,
     required this.size,
+    required this.like,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -277,6 +304,7 @@ class ImageItemData extends DataClass implements Insertable<ImageItemData> {
     map['orientation'] = Variable<int>(orientation);
     map['modified'] = Variable<String>(modified);
     map['size'] = Variable<int>(size);
+    map['like'] = Variable<bool>(like);
     return map;
   }
 
@@ -291,6 +319,7 @@ class ImageItemData extends DataClass implements Insertable<ImageItemData> {
       orientation: Value(orientation),
       modified: Value(modified),
       size: Value(size),
+      like: Value(like),
     );
   }
 
@@ -309,6 +338,7 @@ class ImageItemData extends DataClass implements Insertable<ImageItemData> {
       orientation: serializer.fromJson<int>(json['orientation']),
       modified: serializer.fromJson<String>(json['modified']),
       size: serializer.fromJson<int>(json['size']),
+      like: serializer.fromJson<bool>(json['like']),
     );
   }
   @override
@@ -324,6 +354,7 @@ class ImageItemData extends DataClass implements Insertable<ImageItemData> {
       'orientation': serializer.toJson<int>(orientation),
       'modified': serializer.toJson<String>(modified),
       'size': serializer.toJson<int>(size),
+      'like': serializer.toJson<bool>(like),
     };
   }
 
@@ -337,6 +368,7 @@ class ImageItemData extends DataClass implements Insertable<ImageItemData> {
     int? orientation,
     String? modified,
     int? size,
+    bool? like,
   }) => ImageItemData(
     id: id ?? this.id,
     name: name ?? this.name,
@@ -347,6 +379,7 @@ class ImageItemData extends DataClass implements Insertable<ImageItemData> {
     orientation: orientation ?? this.orientation,
     modified: modified ?? this.modified,
     size: size ?? this.size,
+    like: like ?? this.like,
   );
   ImageItemData copyWithCompanion(ImageItemCompanion data) {
     return ImageItemData(
@@ -361,6 +394,7 @@ class ImageItemData extends DataClass implements Insertable<ImageItemData> {
           : this.orientation,
       modified: data.modified.present ? data.modified.value : this.modified,
       size: data.size.present ? data.size.value : this.size,
+      like: data.like.present ? data.like.value : this.like,
     );
   }
 
@@ -375,7 +409,8 @@ class ImageItemData extends DataClass implements Insertable<ImageItemData> {
           ..write('height: $height, ')
           ..write('orientation: $orientation, ')
           ..write('modified: $modified, ')
-          ..write('size: $size')
+          ..write('size: $size, ')
+          ..write('like: $like')
           ..write(')'))
         .toString();
   }
@@ -391,6 +426,7 @@ class ImageItemData extends DataClass implements Insertable<ImageItemData> {
     orientation,
     modified,
     size,
+    like,
   );
   @override
   bool operator ==(Object other) =>
@@ -404,7 +440,8 @@ class ImageItemData extends DataClass implements Insertable<ImageItemData> {
           other.height == this.height &&
           other.orientation == this.orientation &&
           other.modified == this.modified &&
-          other.size == this.size);
+          other.size == this.size &&
+          other.like == this.like);
 }
 
 class ImageItemCompanion extends UpdateCompanion<ImageItemData> {
@@ -417,6 +454,7 @@ class ImageItemCompanion extends UpdateCompanion<ImageItemData> {
   final Value<int> orientation;
   final Value<String> modified;
   final Value<int> size;
+  final Value<bool> like;
   final Value<int> rowid;
   const ImageItemCompanion({
     this.id = const Value.absent(),
@@ -428,6 +466,7 @@ class ImageItemCompanion extends UpdateCompanion<ImageItemData> {
     this.orientation = const Value.absent(),
     this.modified = const Value.absent(),
     this.size = const Value.absent(),
+    this.like = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   ImageItemCompanion.insert({
@@ -440,6 +479,7 @@ class ImageItemCompanion extends UpdateCompanion<ImageItemData> {
     required int orientation,
     required String modified,
     required int size,
+    required bool like,
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        name = Value(name),
@@ -449,7 +489,8 @@ class ImageItemCompanion extends UpdateCompanion<ImageItemData> {
        height = Value(height),
        orientation = Value(orientation),
        modified = Value(modified),
-       size = Value(size);
+       size = Value(size),
+       like = Value(like);
   static Insertable<ImageItemData> custom({
     Expression<String>? id,
     Expression<String>? name,
@@ -460,6 +501,7 @@ class ImageItemCompanion extends UpdateCompanion<ImageItemData> {
     Expression<int>? orientation,
     Expression<String>? modified,
     Expression<int>? size,
+    Expression<bool>? like,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -472,6 +514,7 @@ class ImageItemCompanion extends UpdateCompanion<ImageItemData> {
       if (orientation != null) 'orientation': orientation,
       if (modified != null) 'modified': modified,
       if (size != null) 'size': size,
+      if (like != null) 'like': like,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -486,6 +529,7 @@ class ImageItemCompanion extends UpdateCompanion<ImageItemData> {
     Value<int>? orientation,
     Value<String>? modified,
     Value<int>? size,
+    Value<bool>? like,
     Value<int>? rowid,
   }) {
     return ImageItemCompanion(
@@ -498,6 +542,7 @@ class ImageItemCompanion extends UpdateCompanion<ImageItemData> {
       orientation: orientation ?? this.orientation,
       modified: modified ?? this.modified,
       size: size ?? this.size,
+      like: like ?? this.like,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -532,6 +577,9 @@ class ImageItemCompanion extends UpdateCompanion<ImageItemData> {
     if (size.present) {
       map['size'] = Variable<int>(size.value);
     }
+    if (like.present) {
+      map['like'] = Variable<bool>(like.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -550,6 +598,7 @@ class ImageItemCompanion extends UpdateCompanion<ImageItemData> {
           ..write('orientation: $orientation, ')
           ..write('modified: $modified, ')
           ..write('size: $size, ')
+          ..write('like: $like, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -577,6 +626,7 @@ typedef $$ImageItemTableCreateCompanionBuilder = ImageItemCompanion Function({
   required int orientation,
   required String modified,
   required int size,
+  required bool like,
   Value<int> rowid,
 });
 typedef $$ImageItemTableUpdateCompanionBuilder = ImageItemCompanion Function({
@@ -589,6 +639,7 @@ typedef $$ImageItemTableUpdateCompanionBuilder = ImageItemCompanion Function({
   Value<int> orientation,
   Value<String> modified,
   Value<int> size,
+  Value<bool> like,
   Value<int> rowid,
 });
 
@@ -643,6 +694,11 @@ class $$ImageItemTableFilterComposer
 
   ColumnFilters<int> get size => $composableBuilder(
     column: $table.size,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get like => $composableBuilder(
+    column: $table.like,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -700,6 +756,11 @@ class $$ImageItemTableOrderingComposer
     column: $table.size,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<bool> get like => $composableBuilder(
+    column: $table.like,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$ImageItemTableAnnotationComposer
@@ -739,6 +800,9 @@ class $$ImageItemTableAnnotationComposer
 
   GeneratedColumn<int> get size =>
       $composableBuilder(column: $table.size, builder: (column) => column);
+
+  GeneratedColumn<bool> get like =>
+      $composableBuilder(column: $table.like, builder: (column) => column);
 }
 
 class $$ImageItemTableTableManager
@@ -781,6 +845,7 @@ class $$ImageItemTableTableManager
                 Value<int> orientation = const Value.absent(),
                 Value<String> modified = const Value.absent(),
                 Value<int> size = const Value.absent(),
+                Value<bool> like = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ImageItemCompanion(
                 id: id,
@@ -792,6 +857,7 @@ class $$ImageItemTableTableManager
                 orientation: orientation,
                 modified: modified,
                 size: size,
+                like: like,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -805,6 +871,7 @@ class $$ImageItemTableTableManager
                 required int orientation,
                 required String modified,
                 required int size,
+                required bool like,
                 Value<int> rowid = const Value.absent(),
               }) => ImageItemCompanion.insert(
                 id: id,
@@ -816,6 +883,7 @@ class $$ImageItemTableTableManager
                 orientation: orientation,
                 modified: modified,
                 size: size,
+                like: like,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

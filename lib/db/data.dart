@@ -10,4 +10,5 @@ class ImageItem extends Table {
   IntColumn get orientation => integer()();
   TextColumn get modified => text()();
   IntColumn get size => integer()();
+  BoolColumn get like => boolean()();
 }
