@@ -8,6 +8,15 @@ import 'filter.dart';
 class FileStore {
   static final list = Signal(<ImageFile>[]);
 
+  static void updateLike(ImageFile image) {
+    final currentList = list.value;
+    int index = currentList.indexWhere((e) => e == image);
+    if (index != -1) {
+      currentList[index].like = !currentList[index].like;
+      list.set(currentList, force: true);
+    }
+  }
+
   static void add(ImageFile value) => list.add(value);
 
   static void addAll(List<ImageFile> value) => list.addAll(value);
@@ -21,6 +30,16 @@ class FileStore {
 
   static final filterList = computed(() {
     List<ImageFile> result = list()
+        .where((e) {
+          switch (FilterStore.show()) {
+            case ShowType.all:
+              return true;
+            case ShowType.like:
+              return e.like;
+            case ShowType.unlike:
+              return !e.like;
+          }
+        })
         .where((e) => e.name.contains(FilterStore.search()))
         .where(
           (e) =>

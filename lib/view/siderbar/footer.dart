@@ -28,7 +28,7 @@ class _FooterViewState extends State<FooterView> {
         return Padding(
           padding: const EdgeInsets.only(bottom: 12.0),
           child: Text(
-            '左键单击浏览图片，双击设置桌面壁纸\n右击打开文件所在位置\nv$version Copyright ilgnefz',
+            '左键单击浏览图片，双击设置桌面壁纸\n长按打开文件位置，右键单击收藏\nv$version Copyright ilgnefz',
             style: TextStyle(fontSize: 12, color: Colors.grey),
             textAlign: .center,
           ),

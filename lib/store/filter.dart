@@ -21,4 +21,7 @@ class FilterStore {
 
   static final folder = Signal('');
   static void updateFolder(String value) => folder.value = value;
+
+  static final show = Signal(ShowType.all);
+  static void updateShow(ShowType type) => show.value = type;
 }
