@@ -1,3 +1,4 @@
+import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:signals/signals.dart';
 
@@ -17,9 +18,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'RFViewer',
+      title: 'PocketGallery',
       debugShowCheckedModeBanner: false,
       theme: ThemeConfig.light(context),
+      builder: BotToastInit(),
+      navigatorObservers: [BotToastNavigatorObserver()],
       home: HomeView(),
     );
   }
