@@ -1,7 +1,4 @@
-use std::{
-    os::windows::fs::MetadataExt,
-    path::Path,
-};
+use std::{os::windows::fs::MetadataExt, path::Path};
 
 use jwalk::WalkDir;
 use uuid::Uuid;
@@ -9,9 +6,19 @@ use uuid::Uuid;
 use crate::api::model::{ImageFile, ImageOrientation};
 
 #[flutter_rust_bridge::frb(sync)]
-pub fn get_all_image(folder: String, exist_images: Vec<ImageFile>) -> Vec<ImageFile> {
+pub fn get_all_image(
+    folder: String,
+    exist_images: Vec<ImageFile>,
+    #[frb(default = true)]
+    recursive: bool,
+) -> Vec<ImageFile> {
     let mut images: Vec<ImageFile> = Vec::new();
-    for entry in WalkDir::new(folder).sort(true) {
+    let walker = if recursive {
+        WalkDir::new(folder).sort(true)
+    } else {
+        WalkDir::new(folder).max_depth(1).sort(true)
+    };
+    for entry in walker {
         if let Ok(entry) = entry {
             if !entry.file_type().is_file() {
                 continue;

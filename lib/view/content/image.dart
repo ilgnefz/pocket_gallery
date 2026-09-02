@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:pocket_gallery/component/image.dart';
 import 'package:pocket_gallery/service/app.dart';
 import 'package:pocket_gallery/src/rust/api/model.dart';
 import 'package:pocket_gallery/src/rust/api/simple.dart';
@@ -22,16 +23,21 @@ class ImageView extends StatelessWidget {
           child: InkWell(
             mouseCursor: SystemMouseCursors.click,
             onTap: () => previewImage(context, image),
-            onDoubleTap: () => setWallpaper(path: image.path),
+            onDoubleTap: () async {
+              if (!await checkExist(image)) return;
+              setWallpaper(path: image.path);
+            },
             onSecondaryTap: () async => await likeImage(image),
             onLongPress: () async => await findImage(image),
             child: ShadowWidget(
               blurRadius: 4,
               child: Center(
-                child: Image.file(
-                  File(image.path),
+                child: Image(
+                  image: ResizeImage(
+                    FileImageWithKey(File(image.path), image.id),
+                    width: cacheWidth,
+                  ),
                   fit: BoxFit.contain,
-                  cacheWidth: cacheWidth,
                   errorBuilder: (_, _, _) => ErrorWidget('图片加载失败'),
                   frameBuilder: (_, child, frame, wasSynchronouslyLoaded) {
                     if (wasSynchronouslyLoaded) return child;

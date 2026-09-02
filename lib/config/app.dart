@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:pocket_gallery/service/database.dart';
 import 'package:pocket_gallery/service/storage.dart';
+import 'package:pocket_gallery/src/rust/frb_generated.dart';
 import 'package:window_manager/window_manager.dart';
 
 class AppConfig {
   static Future<void> init() async {
     WidgetsFlutterBinding.ensureInitialized();
 
-    // await RustLib.init();
+    await RustLib.init();
 
     DatabaseService.init();
 

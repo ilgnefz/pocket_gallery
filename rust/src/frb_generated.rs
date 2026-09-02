@@ -71,11 +71,13 @@ fn wire__crate__api__file__get_all_image_impl(
             let api_folder = <String>::sse_decode(&mut deserializer);
             let api_exist_images =
                 <Vec<crate::api::model::ImageFile>>::sse_decode(&mut deserializer);
+            let api_recursive = <bool>::sse_decode(&mut deserializer);
             deserializer.end();
             transform_result_sse::<_, ()>((move || {
                 let output_ok = Ok::<_, ()>(crate::api::file::get_all_image(
                     api_folder,
                     api_exist_images,
+                    api_recursive,
                 ))?;
                 std::result::Result::Ok(output_ok)
             })())

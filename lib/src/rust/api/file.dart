@@ -13,7 +13,9 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 List<ImageFile> getAllImage({
   required String folder,
   required List<ImageFile> existImages,
+  bool recursive = true,
 }) => RustLib.instance.api.crateApiFileGetAllImage(
   folder: folder,
   existImages: existImages,
+  recursive: recursive,
 );

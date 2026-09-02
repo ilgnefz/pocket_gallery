@@ -6,6 +6,8 @@ import 'config/app.dart';
 import 'config/theme.dart';
 import 'view/home.dart';
 
+// TODO: 文件改变内容不改变名称，更新信息
+
 void main() async {
   await AppConfig.init();
   SignalsObserver.instance = null;

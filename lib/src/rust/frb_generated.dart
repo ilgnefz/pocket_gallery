@@ -86,6 +86,7 @@ abstract class RustLibApi extends BaseApi {
   List<ImageFile> crateApiFileGetAllImage({
     required String folder,
     required List<ImageFile> existImages,
+    bool recursive = true,
   });
 
   String crateApiSimpleGreet({required String name});
@@ -107,6 +108,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   List<ImageFile> crateApiFileGetAllImage({
     required String folder,
     required List<ImageFile> existImages,
+    bool recursive = true,
   }) {
     return handler.executeSync(
       SyncTask(
@@ -114,6 +116,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           final serializer = SseSerializer(generalizedFrbRustBinding);
           sse_encode_String(folder, serializer);
           sse_encode_list_image_file(existImages, serializer);
+          sse_encode_bool(recursive, serializer);
           return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 1)!;
         },
         codec: SseCodec(
@@ -121,7 +124,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeErrorData: null,
         ),
         constMeta: kCrateApiFileGetAllImageConstMeta,
-        argValues: [folder, existImages],
+        argValues: [folder, existImages, recursive],
         apiImpl: this,
       ),
     );
@@ -129,7 +132,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   TaskConstMeta get kCrateApiFileGetAllImageConstMeta => const TaskConstMeta(
     debugName: "get_all_image",
-    argNames: ["folder", "existImages"],
+    argNames: ["folder", "existImages", "recursive"],
   );
 
   @override

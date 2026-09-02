@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:pocket_gallery/enum/enum.dart';
+import 'package:pocket_gallery/service/database.dart';
 import 'package:pocket_gallery/service/sort.dart';
 import 'package:pocket_gallery/src/rust/api/model.dart';
 import 'package:signals/signals_flutter.dart';
@@ -8,25 +11,50 @@ import 'filter.dart';
 class FileStore {
   static final list = Signal(<ImageFile>[]);
 
-  static void updateLike(ImageFile image) {
+  static Future<void> updateLike(ImageFile image) async {
     final currentList = list.value;
-    int index = currentList.indexWhere((e) => e == image);
+    int index = currentList.indexWhere((e) => e.path == image.path);
     if (index != -1) {
       currentList[index].like = !currentList[index].like;
       list.set(currentList, force: true);
+      await DatabaseService.updateLike(image.id, !image.like);
     }
   }
 
-  static void add(ImageFile value) => list.add(value);
+  // static void add(ImageFile value) => list.add(value);
 
-  static void addAll(List<ImageFile> value) => list.addAll(value);
+  static Future<void> addAll(List<ImageFile> value) async {
+    list.addAll(value);
+    for (var item in value) {
+      await DatabaseService.insert(item);
+    }
+  }
 
-  static void remove(String folder) {
+  static Future<void> remove(ImageFile value) async {
+    list.remove(value);
+    await DatabaseService.removeById(value.id);
+  }
+
+  static Future<void> removeFolder(String folder) async {
     list.removeWhere((e) => e.folder == folder);
+    await DatabaseService.removeFolder(folder);
     if (FilterStore.folder() == folder) FilterStore.updateFolder('');
   }
 
-  static void clear() => list.clear();
+  static Future<void> removeNotExist() async {
+    final removeTargets = <ImageFile>[];
+    for (var item in list()) {
+      if (!await File(item.path).exists()) {
+        removeTargets.add(item);
+      }
+    }
+    for (var item in removeTargets) {
+      await DatabaseService.removeById(item.id);
+    }
+    list.removeWhere(removeTargets.contains);
+  }
+
+  // static void clear() => list.clear();
 
   static final filterList = computed(() {
     List<ImageFile> result = list()
