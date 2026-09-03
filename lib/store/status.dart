@@ -6,4 +6,7 @@ class StatusStore {
   static void updateMode() => mode.value = mode.value == SideMenuMode.open
       ? SideMenuMode.compact
       : SideMenuMode.open;
+
+  static final loading = Signal(false);
+  static void updateLoading(bool value) => loading.value = value;
 }

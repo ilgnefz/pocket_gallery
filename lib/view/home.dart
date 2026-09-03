@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:pocket_gallery/service/app.dart';
 import 'package:pocket_gallery/view/content/content.dart';
 import 'package:pocket_gallery/view/siderbar/sidebar.dart';
+import 'package:pocket_gallery/view/top/title_bar.dart';
 import 'package:pocket_gallery/view/top/top.dart';
+import 'package:window_manager/window_manager.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -24,18 +26,31 @@ class _HomeViewState extends State<HomeView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        children: [
-          TopView(),
-          Expanded(
-            child: Row(
-              children: [
-                Expanded(child: ContentView()),
-                SidebarView(),
-              ],
-            ),
+      body: DragToResizeArea(
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(colors: [Colors.grey[100]!, Colors.white]),
           ),
-        ],
+          child: Column(
+            children: [
+              TitleBarView(),
+              TopView(),
+              Expanded(
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Padding(
+                        padding: const .only(top: 4.0),
+                        child: ContentView(),
+                      ),
+                    ),
+                    SidebarView(),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

@@ -15,18 +15,24 @@ class FileStore {
     final currentList = list.value;
     int index = currentList.indexWhere((e) => e.path == image.path);
     if (index != -1) {
-      currentList[index].like = !currentList[index].like;
+      final target = currentList[index];
+      target.like = !target.like;
       list.set(currentList, force: true);
-      await DatabaseService.updateLike(image.id, !image.like);
+      await DatabaseService.updateLike(target.id, target.like);
     }
   }
 
   // static void add(ImageFile value) => list.add(value);
 
-  static Future<void> addAll(List<ImageFile> value) async {
+  static Future<void> addAll(
+    List<ImageFile> value, [
+    bool saveToDB = true,
+  ]) async {
     list.addAll(value);
-    for (var item in value) {
-      await DatabaseService.insert(item);
+    if (saveToDB) {
+      for (var item in value) {
+        await DatabaseService.insert(item);
+      }
     }
   }
 
@@ -71,8 +77,8 @@ class FileStore {
         .where((e) => e.name.contains(FilterStore.search()))
         .where(
           (e) =>
-              FilterStore.showOrientation().isAll ||
-              e.orientation == FilterStore.showOrientation(),
+              FilterStore.orientation().isAll ||
+              e.orientation == FilterStore.orientation(),
         )
         .where(
           (e) =>

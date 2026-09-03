@@ -5,11 +5,12 @@ import 'package:pocket_gallery/enum/enum.dart';
 import 'package:pocket_gallery/store/file.dart';
 import 'package:pocket_gallery/store/filter.dart';
 import 'package:pocket_gallery/store/status.dart';
-import 'package:pocket_gallery/view/siderbar/chip.dart';
-import 'package:pocket_gallery/view/siderbar/folder.dart';
-import 'package:pocket_gallery/view/siderbar/footer.dart';
-import 'package:pocket_gallery/view/siderbar/title.dart';
 import 'package:signals/signals_flutter.dart';
+
+import 'chip.dart';
+import 'folder.dart';
+import 'footer.dart';
+import 'title.dart';
 
 class SidebarView extends StatelessWidget {
   const SidebarView({super.key});

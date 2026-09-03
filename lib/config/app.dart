@@ -31,8 +31,8 @@ class AppConfig {
       await windowManager.maximize();
       await windowManager.show();
       await windowManager.focus();
-      // await windowManager.setAsFrameless();
-      // await windowManager.setHasShadow(true);
+      await windowManager.setAsFrameless();
+      await windowManager.setHasShadow(true);
     });
   }
 }

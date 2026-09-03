@@ -11,6 +11,7 @@ import 'package:pocket_gallery/src/rust/api/file.dart';
 import 'package:pocket_gallery/src/rust/api/model.dart';
 import 'package:pocket_gallery/src/rust/frb_generated.dart';
 import 'package:pocket_gallery/store/file.dart';
+import 'package:pocket_gallery/store/status.dart';
 import 'package:pocket_gallery/view/content/preview.dart';
 
 import 'database.dart';
@@ -57,6 +58,7 @@ Future<void> refreshFolders() async {
 }
 
 Future<void> loadImages() async {
+  StatusStore.updateLoading(true);
   List<ImageItemData> allItems = await DatabaseService.getItems();
   List<ImageFile> files = [];
   for (final item in allItems) {
@@ -79,8 +81,9 @@ Future<void> loadImages() async {
       ),
     );
   }
-  await FileStore.addAll(files);
+  await FileStore.addAll(files, false);
   debugPrint('读取了 ${files.length} 条数据');
+  StatusStore.updateLoading(false);
 }
 
 Future<void> previewImage(BuildContext context, ImageFile image) async {

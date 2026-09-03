@@ -12,9 +12,9 @@ class FilterStore {
   static final search = Signal('');
   static void updateSearch(String value) => search.value = value;
 
-  static final showOrientation = Signal(ImageOrientation.all);
-  static void updateShowOrientation(ImageOrientation value) =>
-      showOrientation.value = value;
+  static final orientation = Signal(ImageOrientation.all);
+  static void updateOrientation(ImageOrientation value) =>
+      orientation.value = value;
 
   static final sort = Signal(SortType.none);
   static void updateSort(SortType value) => sort.value = value;
@@ -23,5 +23,8 @@ class FilterStore {
   static void updateFolder(String value) => folder.value = value;
 
   static final show = Signal(ShowType.all);
-  static void updateShow(ShowType type) => show.value = type;
+  static void updateShow(ShowType value) => show.value = value;
+
+  static final layout = Signal(LayoutStyle.equalHeight);
+  static void updateLayout(LayoutStyle value) => layout.value = value;
 }

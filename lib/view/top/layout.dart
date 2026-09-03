@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:pocket_gallery/enum/enum.dart';
 import 'package:pocket_gallery/service/debounce.dart';
-import 'package:pocket_gallery/src/rust/api/model.dart';
 import 'package:pocket_gallery/store/filter.dart';
 import 'package:signals/signals_flutter.dart';
 
-class TopFilter extends StatelessWidget {
-  const TopFilter({super.key});
+class LayoutDropdown extends StatelessWidget {
+  const LayoutDropdown({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +15,7 @@ class TopFilter extends StatelessWidget {
       child: SignalBuilder(
         builder: (BuildContext context) => DropdownButtonHideUnderline(
           child: DropdownButton(
-            value: FilterStore.orientation(),
+            value: FilterStore.layout(),
             isDense: true,
             padding: const EdgeInsets.only(left: 12, right: 4),
             borderRadius: BorderRadius.circular(4),
@@ -24,7 +23,7 @@ class TopFilter extends StatelessWidget {
             focusColor: Colors.transparent,
             mouseCursor: SystemMouseCursors.click,
             dropdownMenuItemMouseCursor: SystemMouseCursors.click,
-            items: ImageOrientation.values
+            items: LayoutStyle.values
                 .map((e) {
                   return DropdownMenuItem(
                     value: e,
@@ -35,11 +34,10 @@ class TopFilter extends StatelessWidget {
                     ),
                   );
                 })
-                .whereType<DropdownMenuItem<ImageOrientation>>()
+                .whereType<DropdownMenuItem<LayoutStyle>>()
                 .toList(),
-            onChanged: (value) => DebounceService.run(
-              () => FilterStore.updateOrientation(value!),
-            ),
+            onChanged: (value) =>
+                DebounceService.run(() => FilterStore.updateLayout(value!)),
           ),
         ),
       ),

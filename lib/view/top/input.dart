@@ -34,11 +34,12 @@ class _TopInputState extends State<TopInput> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 256,
+      // width: 256,
+      width: MediaQuery.of(context).size.width * .25,
       height: 36,
       padding: .only(left: 12.0, right: 8.0),
       decoration: BoxDecoration(
-        color: Colors.grey[100],
+        color: Color(0xFFF0F1F3),
         borderRadius: BorderRadius.circular(4.0),
       ),
       alignment: .center,

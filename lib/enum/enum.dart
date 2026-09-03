@@ -80,3 +80,19 @@ extension ShowTypeExtension on ShowType {
   bool get isLike => this == ShowType.like;
   bool get isUnlike => this == ShowType.unlike;
 }
+
+enum LayoutStyle { equalHeight, equalWidth }
+
+extension LayoutStyleExtension on LayoutStyle {
+  String get label {
+    switch (this) {
+      case LayoutStyle.equalHeight:
+        return '等高';
+      case LayoutStyle.equalWidth:
+        return '等宽';
+    }
+  }
+
+  bool get isEqualHeight => this == LayoutStyle.equalHeight;
+  bool get isEqualWidth => this == LayoutStyle.equalWidth;
+}

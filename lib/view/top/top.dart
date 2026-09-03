@@ -5,6 +5,7 @@ import 'package:pocket_gallery/store/file.dart';
 import 'package:pocket_gallery/store/status.dart';
 import 'package:pocket_gallery/view/top/filter.dart';
 import 'package:pocket_gallery/view/top/input.dart';
+import 'package:pocket_gallery/view/top/layout.dart';
 import 'package:signals/signals_flutter.dart';
 
 class TopView extends StatelessWidget {
@@ -29,8 +30,9 @@ class TopView extends StatelessWidget {
           IconButton(onPressed: refreshFolders, icon: Icon(Icons.refresh)),
           const Spacer(),
           TopInput(),
-          SizedBox.shrink(),
+          const Spacer(),
           TopFilter(),
+          LayoutDropdown(),
           IconButton(
             onPressed: addFolders,
             icon: Icon(Icons.create_new_folder_outlined),
