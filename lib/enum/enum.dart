@@ -1,3 +1,4 @@
+import 'package:pocket_gallery/constant/icon.dart';
 import 'package:pocket_gallery/src/rust/api/model.dart';
 
 extension ImageOrientationExtension on ImageOrientation {
@@ -27,6 +28,8 @@ enum SortType {
   none,
   nameAscending,
   nameDescending,
+  dateAscending,
+  dateDescending,
   sizeAscending,
   sizeDescending,
   orientationAscending,
@@ -42,6 +45,10 @@ extension SortTypeExtension on SortType {
         return '名称升序';
       case SortType.nameDescending:
         return '名称降序';
+      case SortType.dateAscending:
+        return '时间升序';
+      case SortType.dateDescending:
+        return '时间降序';
       case SortType.sizeAscending:
         return '大小升序';
       case SortType.sizeDescending:
@@ -56,6 +63,8 @@ extension SortTypeExtension on SortType {
   bool get isNone => this == SortType.none;
   bool get isNameAscending => this == SortType.nameAscending;
   bool get isNameDescending => this == SortType.nameDescending;
+  bool get isDateAscending => this == SortType.dateAscending;
+  bool get isDateDescending => this == SortType.dateDescending;
   bool get isSizeAscending => this == SortType.sizeAscending;
   bool get isSizeDescending => this == SortType.sizeDescending;
   bool get isOrientationAscending => this == SortType.orientationAscending;
@@ -90,6 +99,15 @@ extension LayoutStyleExtension on LayoutStyle {
         return '等高';
       case LayoutStyle.equalWidth:
         return '等宽';
+    }
+  }
+
+  String get icon {
+    switch (this) {
+      case LayoutStyle.equalHeight:
+        return AppIcon.equalHeight;
+      case LayoutStyle.equalWidth:
+        return AppIcon.equalWidth;
     }
   }
 

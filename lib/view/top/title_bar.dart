@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pocket_gallery/component/icon.dart';
 import 'package:pocket_gallery/constant/icon.dart';
 import 'package:pocket_gallery/constant/image.dart';
+import 'package:pocket_gallery/constant/num.dart';
 import 'package:window_manager/window_manager.dart';
 
 class TitleBarView extends StatefulWidget {
@@ -47,29 +48,29 @@ class _TitleBarViewState extends State<TitleBarView> {
       onDoubleTap: maximizeOrUnmaximize,
       child: Container(
         width: double.infinity,
-        height: 32.0,
+        height: AppNum.titleBarH,
         // color: Colors.grey[100],
-        padding: .only(left: 12.0),
+        padding: .only(left: AppNum.padding),
         child: Row(
           children: [
-            Image.asset(AppImages.logo, height: 20.0),
+            Image.asset(AppImage.logo, height: 20.0),
             const SizedBox(width: 8),
             Text('PocketGallery', style: TextStyle(fontSize: 13)),
             widget.child == null
                 ? const Spacer()
                 : Expanded(child: widget.child!),
             TitleBarIcon(
-              svg: AppIcons.minimize,
+              svg: AppIcon.minimize,
               color: Colors.black,
               onPressed: minimize,
             ),
             TitleBarIcon(
-              svg: isMax ? AppIcons.unmaximize : AppIcons.maximize,
+              svg: isMax ? AppIcon.unmaximize : AppIcon.maximize,
               color: Colors.black,
               onPressed: maximizeOrUnmaximize,
             ),
             TitleBarIcon(
-              svg: AppIcons.close,
+              svg: AppIcon.close,
               color: Colors.black,
               onPressed: close,
             ),

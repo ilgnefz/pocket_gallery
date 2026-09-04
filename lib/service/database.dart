@@ -1,5 +1,5 @@
 import 'package:drift/drift.dart';
-import 'package:pocket_gallery/db/dao.dart';
+import 'package:pocket_gallery/database/dao.dart';
 import 'package:pocket_gallery/src/rust/api/model.dart';
 
 class DatabaseService {

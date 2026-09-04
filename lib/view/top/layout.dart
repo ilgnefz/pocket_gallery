@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pocket_gallery/component/icon.dart';
 import 'package:pocket_gallery/enum/enum.dart';
 import 'package:pocket_gallery/service/debounce.dart';
 import 'package:pocket_gallery/store/filter.dart';
@@ -23,14 +24,22 @@ class LayoutDropdown extends StatelessWidget {
             focusColor: Colors.transparent,
             mouseCursor: SystemMouseCursors.click,
             dropdownMenuItemMouseCursor: SystemMouseCursors.click,
+            selectedItemBuilder: (BuildContext context) =>
+                LayoutStyle.values.map((e) => BaseIcon(svg: e.icon)).toList(),
             items: LayoutStyle.values
                 .map((e) {
                   return DropdownMenuItem(
                     value: e,
-                    child: Text(
-                      e.label,
-                      style: Theme.of(context).textTheme.bodySmall
-                          ?.copyWith(fontSize: 14),
+                    child: Row(
+                      spacing: 8,
+                      children: [
+                        BaseIcon(svg: e.icon),
+                        Text(
+                          e.label,
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(fontSize: 14),
+                        ),
+                      ],
                     ),
                   );
                 })

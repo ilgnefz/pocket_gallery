@@ -3,8 +3,8 @@ import 'dart:isolate';
 
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
-import 'package:pocket_gallery/db/dao.dart';
+import 'package:pocket_gallery/constant/key.dart';
+import 'package:pocket_gallery/database/dao.dart';
 import 'package:pocket_gallery/service/notification.dart';
 import 'package:pocket_gallery/service/storage.dart';
 import 'package:pocket_gallery/src/rust/api/file.dart';
@@ -18,25 +18,25 @@ import 'database.dart';
 
 Future<void> addFolders() async {
   final List<String?> folders = await getDirectoryPaths();
-  if (folders.isNotEmpty) {
-    List<ImageFile> files = [];
-    for (String? folder in folders) {
-      if (folder == null) continue;
+  if (folders.isEmpty) return;
+  // 并行扫描所有文件夹，并等待全部完成后再持久化，避免竞态
+  final tasks = <Future<void>>[];
+  for (String? folder in folders) {
+    if (folder == null) continue;
+    tasks.add(() async {
       final existImages = FileStore.list();
-      SchedulerBinding.instance.addPostFrameCallback((_) async {
-        var cancel = NotificationService.show(folder);
-        files = await Isolate.run(() async {
-          await RustLib.init();
-          return getAllImage(folder: folder, existImages: existImages);
-        });
-        cancel();
-        await FileStore.addAll(files);
-        debugPrint('存储了 ${files.length} 条数据到数据库');
+      var cancel = NotificationService.show(folder);
+      final files = await Isolate.run(() async {
+        await RustLib.init();
+        return getAllImage(folder: folder, existImages: existImages);
       });
-    }
-    await Future.delayed(Duration(milliseconds: 300));
-    await StorageService.setStringList('folder', FileStore.folders());
+      cancel();
+      await FileStore.addAll(files);
+      debugPrint('存储了 ${files.length} 条数据到数据库');
+    }());
   }
+  await Future.wait(tasks);
+  await StorageService.setStringList(AppKey.folders, FileStore.folders());
 }
 
 Future<void> refreshFolders() async {
@@ -59,11 +59,21 @@ Future<void> refreshFolders() async {
 
 Future<void> loadImages() async {
   StatusStore.updateLoading(true);
+  FileStore.folderOrder.set(
+    StorageService.getStringList(AppKey.foldersOrder),
+    force: true,
+  );
   List<ImageItemData> allItems = await DatabaseService.getItems();
-  List<ImageFile> files = [];
-  for (final item in allItems) {
-    if (!await File(item.path).exists()) {
-      await DatabaseService.removeById(item.id);
+  // 并行检查文件是否存在
+  final exists = await Future.wait(
+    allItems.map((item) => File(item.path).exists()),
+  );
+  final removeIds = <String>[];
+  final files = <ImageFile>[];
+  for (int i = 0; i < allItems.length; i++) {
+    final item = allItems[i];
+    if (!exists[i]) {
+      removeIds.add(item.id);
       continue;
     }
     files.add(
@@ -81,6 +91,7 @@ Future<void> loadImages() async {
       ),
     );
   }
+  await Future.wait(removeIds.map((id) => DatabaseService.removeById(id)));
   await FileStore.addAll(files, false);
   debugPrint('读取了 ${files.length} 条数据');
   StatusStore.updateLoading(false);
@@ -110,9 +121,9 @@ Future<void> likeImage(ImageFile image) async {
 
 Future<void> removeFolder(String folder) async {
   await FileStore.removeFolder(folder);
-  List<String> folders = StorageService.getStringList('folder');
+  List<String> folders = StorageService.getStringList(AppKey.folders);
   folders.remove(folder);
-  await StorageService.setStringList('folder', folders);
+  await StorageService.setStringList(AppKey.folders, folders);
 }
 
 Future<bool> checkExist(ImageFile image) async {

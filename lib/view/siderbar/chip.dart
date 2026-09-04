@@ -31,11 +31,10 @@ class _SidebarChipState extends State<SidebarChip> {
           color: Colors.white,
           child: Text(
             widget.label,
-            style: TextStyle(
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: widget.selected || isHover
                   ? Theme.of(context).primaryColor
-                  : Colors.black,
-              // fontWeight: widget.selected ? .bold : .normal,
+                  : Color(0xFF121212),
             ),
           ),
         ),

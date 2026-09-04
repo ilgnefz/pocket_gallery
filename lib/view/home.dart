@@ -27,29 +27,24 @@ class _HomeViewState extends State<HomeView> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: DragToResizeArea(
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(colors: [Colors.grey[100]!, Colors.white]),
-          ),
-          child: Column(
-            children: [
-              TitleBarView(),
-              TopView(),
-              Expanded(
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Padding(
-                        padding: const .only(top: 4.0),
-                        child: ContentView(),
-                      ),
+        child: Column(
+          children: [
+            TitleBarView(),
+            TopView(),
+            Expanded(
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Padding(
+                      padding: const .only(top: 4.0),
+                      child: ContentView(),
                     ),
-                    SidebarView(),
-                  ],
-                ),
+                  ),
+                  SidebarView(),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

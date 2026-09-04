@@ -1,10 +1,8 @@
+import 'package:pocket_gallery/constant/key.dart';
 import 'package:pocket_gallery/enum/enum.dart';
+import 'package:pocket_gallery/service/storage.dart';
 import 'package:pocket_gallery/src/rust/api/model.dart';
 import 'package:signals/signals.dart';
-
-final counter = signal(0);
-final doubleCounter = computed(() => counter.value * 2);
-void increment() => counter.value++;
 
 class FilterStore {
   // static final controller = Signal(TextEditingController());
@@ -25,6 +23,11 @@ class FilterStore {
   static final show = Signal(ShowType.all);
   static void updateShow(ShowType value) => show.value = value;
 
-  static final layout = Signal(LayoutStyle.equalHeight);
-  static void updateLayout(LayoutStyle value) => layout.value = value;
+  static final layout = Signal(
+    LayoutStyle.values[StorageService.getInt(AppKey.layout) ?? 0],
+  );
+  static Future<void> updateLayout(LayoutStyle value) async {
+    layout.value = value;
+    await StorageService.setInt(AppKey.layout, value.index);
+  }
 }

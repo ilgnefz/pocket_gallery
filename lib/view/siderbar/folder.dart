@@ -1,61 +1,79 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:pocket_gallery/component/close.dart';
-import 'package:pocket_gallery/service/app.dart';
-import 'package:pocket_gallery/service/debounce.dart';
-import 'package:pocket_gallery/store/filter.dart';
+import 'package:pocket_gallery/constant/num.dart';
+import 'package:pocket_gallery/store/file.dart';
+import 'package:pocket_gallery/store/status.dart';
+import 'package:pocket_gallery/view/siderbar/folder_item.dart';
 import 'package:signals/signals_flutter.dart';
 
-class SidebarClickFolder extends StatefulWidget {
-  const SidebarClickFolder({super.key, required this.folder});
-
-  final String folder;
+class SidebarFolders extends StatefulWidget {
+  const SidebarFolders({super.key});
 
   @override
-  State<SidebarClickFolder> createState() => _SidebarClickFolderState();
+  State<SidebarFolders> createState() => _SidebarFoldersState();
 }
 
-class _SidebarClickFolderState extends State<SidebarClickFolder> {
-  bool isHover = false;
-
+class _SidebarFoldersState extends State<SidebarFolders> {
   @override
   Widget build(BuildContext context) {
-    String name = widget.folder.isEmpty
-        ? '全部'
-        : widget.folder.split(Platform.pathSeparator).last;
+    return Expanded(
+      child: SignalBuilder(
+        builder: (BuildContext context) {
+          List<String> folders = FileStore.folders();
+          bool isSort = StatusStore.sort();
 
-    Widget child = SignalBuilder(
-      builder: (BuildContext context) => Text(
-        name,
-        style: TextStyle(
-          color: isHover || FilterStore.folder() == widget.folder
-              ? Theme.of(context).primaryColor
-              : Colors.black,
-          // fontWeight: FilterStore.folder() == widget.folder ? .bold : .normal,
-        ),
-        maxLines: 2,
-        overflow: TextOverflow.ellipsis,
-      ),
-    );
+          if (!isSort) {
+            return ListView.builder(
+              shrinkWrap: true,
+              padding: .symmetric(horizontal: AppNum.padding),
+              itemCount: folders.length,
+              itemBuilder: (_, index) =>
+                  SidebarFolderItem(folder: folders[index]),
+            );
+          }
 
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      onHover: (_) => setState(() => isHover = true),
-      onExit: (_) => setState(() => isHover = false),
-      child: InkWell(
-        mouseCursor: SystemMouseCursors.click,
-        onTap: () =>
-            DebounceService.run(() => FilterStore.updateFolder(widget.folder)),
-        child: widget.folder.isEmpty
-            ? child
-            : Row(
-                children: [
-                  Expanded(child: child),
-                  if (widget.folder.isNotEmpty)
-                    CloseIcon(onTap: () => removeFolder(widget.folder)),
-                ],
-              ),
+          return ReorderableListView.builder(
+            shrinkWrap: true,
+            itemCount: folders.length,
+            mouseCursor: SystemMouseCursors.click,
+            padding: .symmetric(horizontal: AppNum.padding),
+            buildDefaultDragHandles: false,
+            proxyDecorator: (proxy, original, information) {
+              return Material(
+                color: Theme.of(context).scaffoldBackgroundColor,
+                elevation: 2,
+                borderRadius: BorderRadius.circular(4),
+                shadowColor: Colors.black,
+                child: Padding(
+                  padding: .symmetric(horizontal: 8.0),
+                  child: proxy,
+                ),
+              );
+            },
+            onReorderItem: (int oldIndex, int newIndex) =>
+                FileStore.reorderFolder(oldIndex, newIndex),
+            itemBuilder: (BuildContext context, int index) {
+              final folder = folders[index];
+              return ReorderableDragStartListener(
+                index: index,
+                key: ValueKey(folder),
+                child: MouseRegion(
+                  cursor: SystemMouseCursors.click,
+                  child: Container(
+                    height: AppNum.sidebarTitleH,
+                    alignment: .centerLeft,
+                    child: Text(
+                      folder.split(Platform.pathSeparator).last,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ),
+              );
+            },
+          );
+        },
       ),
     );
   }

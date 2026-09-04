@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_side_menu/flutter_side_menu.dart';
+import 'package:pocket_gallery/constant/num.dart';
 import 'package:pocket_gallery/service/app.dart';
 import 'package:pocket_gallery/store/file.dart';
 import 'package:pocket_gallery/store/status.dart';
@@ -14,11 +15,11 @@ class TopView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 48,
+      height: AppNum.topH,
       width: double.infinity,
-      padding: .symmetric(horizontal: 12.0),
+      padding: .only(left: AppNum.padding, right: AppNum.paddingSmall),
       child: Row(
-        spacing: 8.0,
+        spacing: AppNum.paddingSmall,
         crossAxisAlignment: .center,
         children: [
           SignalBuilder(

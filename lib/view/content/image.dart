@@ -48,16 +48,19 @@ class ImageView extends StatelessWidget {
         ? child
         : ShadowWidget(blurRadius: 4, child: Center(child: child));
 
-    child = InkWell(
-      mouseCursor: SystemMouseCursors.click,
-      onTap: () => previewImage(context, image),
-      onDoubleTap: () async {
-        if (!await checkExist(image)) return;
-        setWallpaper(path: image.path);
-      },
-      onSecondaryTap: () async => await likeImage(image),
-      onLongPress: () async => await findImage(image),
-      child: child,
+    child = Material(
+      color: Colors.transparent,
+      child: InkWell(
+        mouseCursor: SystemMouseCursors.click,
+        onTap: () => previewImage(context, image),
+        onDoubleTap: () async {
+          if (!await checkExist(image)) return;
+          setWallpaper(path: image.path);
+        },
+        onSecondaryTap: () async => await likeImage(image),
+        onLongPress: () async => await findImage(image),
+        child: child,
+      ),
     );
 
     if (style.isEqualWidth) {

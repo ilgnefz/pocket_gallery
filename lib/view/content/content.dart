@@ -31,10 +31,9 @@ class ContentView extends StatelessWidget {
           return FlexibleAspectRatioGrid.builder(
             padding: padding,
             itemCount: files.length,
-            targetHeight: 240,
-            mainAxisSpacing: 8,
-            crossAxisSpacing: 8,
-            scrollCacheExtent: ScrollCacheExtent.viewport(.5),
+            targetHeight: 240.0,
+            mainAxisSpacing: 8.0,
+            crossAxisSpacing: 8.0,
             aspectRatioBuilder: (_, index) =>
                 files[index].width / files[index].height,
             itemBuilder: (context, index) {
@@ -51,11 +50,10 @@ class ContentView extends StatelessWidget {
         return GridView.builder(
           itemCount: files.length,
           padding: padding,
-          scrollCacheExtent: ScrollCacheExtent.viewport(.5),
           gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-            maxCrossAxisExtent: 240,
-            mainAxisSpacing: 8,
-            crossAxisSpacing: 8,
+            maxCrossAxisExtent: 240.0,
+            mainAxisSpacing: 12.0,
+            crossAxisSpacing: 8.0,
             childAspectRatio: 3 / 4,
           ),
           itemBuilder: (context, index) {
