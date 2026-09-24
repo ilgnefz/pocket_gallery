@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_blurhash/flutter_blurhash.dart';
 import 'package:pocket_gallery/src/rust/api/model.dart';
 import 'package:pocket_gallery/store/file.dart';
 import 'package:signals/signals_flutter.dart';
@@ -51,17 +52,32 @@ class _ContentPreviewState extends State<ContentPreview> {
                   errorBuilder: (_, _, _) => ErrorWidget('图片加载失败'),
                   frameBuilder: (_, child, frame, wasSynchronouslyLoaded) {
                     if (wasSynchronouslyLoaded) return child;
-                    return AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 200),
-                      child: frame != null
-                          ? child
-                          : SizedBox(
-                              width: 120,
-                              height: 120,
-                              child: const CircularProgressIndicator(
-                                strokeWidth: 8,
-                              ),
+                    return Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        if (FileStore.preview()!.blurhash.isNotEmpty)
+                          AspectRatio(
+                            aspectRatio:
+                                FileStore.preview()!.width /
+                                FileStore.preview()!.height,
+                            child: BlurHash(
+                              hash: FileStore.preview()!.blurhash,
                             ),
+                          ),
+                        AnimatedOpacity(
+                          opacity: frame != null ? 1.0 : 0.0,
+                          duration: const Duration(milliseconds: 500),
+                          curve: Curves.easeInOut,
+                          child: child,
+                        ),
+                        if (frame == null &&
+                            FileStore.preview()!.blurhash.isEmpty)
+                          const SizedBox(
+                            width: 120,
+                            height: 120,
+                            child: CircularProgressIndicator(strokeWidth: 8),
+                          ),
+                      ],
                     );
                   },
                 ),

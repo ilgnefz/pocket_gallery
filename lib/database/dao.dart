@@ -11,7 +11,20 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
+
+  @override
+  MigrationStrategy get migration {
+    return MigrationStrategy(
+      onCreate: (m) async => m.createAll(),
+      onUpgrade: (m, from, to) async {
+        if (from < 2) {
+          // 使用生成的表实例和列字段
+          await m.addColumn(imageItem, imageItem.blurhash);
+        }
+      },
+    );
+  }
 
   static QueryExecutor _openConnection() {
     return driftDatabase(

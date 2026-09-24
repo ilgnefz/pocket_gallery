@@ -19,6 +19,7 @@ class ImageFile {
   final ImageOrientation orientation;
   final int modified;
   final int size;
+  String blurhash;
   bool like;
 
   ImageFile({
@@ -31,6 +32,7 @@ class ImageFile {
     required this.orientation,
     required this.modified,
     required this.size,
+    required this.blurhash,
     required this.like,
   });
 
@@ -45,6 +47,7 @@ class ImageFile {
       orientation.hashCode ^
       modified.hashCode ^
       size.hashCode ^
+      blurhash.hashCode ^
       like.hashCode;
 
   @override
@@ -61,6 +64,7 @@ class ImageFile {
           orientation == other.orientation &&
           modified == other.modified &&
           size == other.size &&
+          blurhash == other.blurhash &&
           like == other.like;
 }
 

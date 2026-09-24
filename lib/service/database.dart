@@ -41,6 +41,11 @@ class DatabaseService {
     _database.imageItem,
   )..where((e) => e.id.equals(id))).go();
 
+  static Future<void> updateBlurHash(String id, String blurHash) async {
+    await (_database.update(_database.imageItem)..where((e) => e.id.equals(id)))
+        .write(ImageItemCompanion(blurhash: Value(blurHash)));
+  }
+
   static Future<void> updateLike(String id, bool like) async {
     await (_database.update(_database.imageItem)..where((e) => e.id.equals(id)))
         .write(ImageItemCompanion(like: Value(like)));

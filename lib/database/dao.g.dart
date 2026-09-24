@@ -94,6 +94,18 @@ class $ImageItemTable extends ImageItem
     type: DriftSqlType.int,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _blurhashMeta = const VerificationMeta(
+    'blurhash',
+  );
+  @override
+  late final GeneratedColumn<String> blurhash = GeneratedColumn<String>(
+    'blurhash',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(''),
+  );
   static const VerificationMeta _likeMeta = const VerificationMeta('like');
   @override
   late final GeneratedColumn<bool> like = GeneratedColumn<bool>(
@@ -117,6 +129,7 @@ class $ImageItemTable extends ImageItem
     orientation,
     modified,
     size,
+    blurhash,
     like,
   ];
   @override
@@ -203,6 +216,12 @@ class $ImageItemTable extends ImageItem
     } else if (isInserting) {
       context.missing(_sizeMeta);
     }
+    if (data.containsKey('blurhash')) {
+      context.handle(
+        _blurhashMeta,
+        blurhash.isAcceptableOrUnknown(data['blurhash']!, _blurhashMeta),
+      );
+    }
     if (data.containsKey('like')) {
       context.handle(
         _likeMeta,
@@ -256,6 +275,10 @@ class $ImageItemTable extends ImageItem
         DriftSqlType.int,
         data['${effectivePrefix}size'],
       )!,
+      blurhash: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}blurhash'],
+      )!,
       like: attachedDatabase.typeMapping.read(
         DriftSqlType.bool,
         data['${effectivePrefix}like'],
@@ -279,6 +302,7 @@ class ImageItemData extends DataClass implements Insertable<ImageItemData> {
   final int orientation;
   final String modified;
   final int size;
+  final String blurhash;
   final bool like;
   const ImageItemData({
     required this.id,
@@ -290,6 +314,7 @@ class ImageItemData extends DataClass implements Insertable<ImageItemData> {
     required this.orientation,
     required this.modified,
     required this.size,
+    required this.blurhash,
     required this.like,
   });
   @override
@@ -304,6 +329,7 @@ class ImageItemData extends DataClass implements Insertable<ImageItemData> {
     map['orientation'] = Variable<int>(orientation);
     map['modified'] = Variable<String>(modified);
     map['size'] = Variable<int>(size);
+    map['blurhash'] = Variable<String>(blurhash);
     map['like'] = Variable<bool>(like);
     return map;
   }
@@ -319,6 +345,7 @@ class ImageItemData extends DataClass implements Insertable<ImageItemData> {
       orientation: Value(orientation),
       modified: Value(modified),
       size: Value(size),
+      blurhash: Value(blurhash),
       like: Value(like),
     );
   }
@@ -338,6 +365,7 @@ class ImageItemData extends DataClass implements Insertable<ImageItemData> {
       orientation: serializer.fromJson<int>(json['orientation']),
       modified: serializer.fromJson<String>(json['modified']),
       size: serializer.fromJson<int>(json['size']),
+      blurhash: serializer.fromJson<String>(json['blurhash']),
       like: serializer.fromJson<bool>(json['like']),
     );
   }
@@ -354,6 +382,7 @@ class ImageItemData extends DataClass implements Insertable<ImageItemData> {
       'orientation': serializer.toJson<int>(orientation),
       'modified': serializer.toJson<String>(modified),
       'size': serializer.toJson<int>(size),
+      'blurhash': serializer.toJson<String>(blurhash),
       'like': serializer.toJson<bool>(like),
     };
   }
@@ -368,6 +397,7 @@ class ImageItemData extends DataClass implements Insertable<ImageItemData> {
     int? orientation,
     String? modified,
     int? size,
+    String? blurhash,
     bool? like,
   }) => ImageItemData(
     id: id ?? this.id,
@@ -379,6 +409,7 @@ class ImageItemData extends DataClass implements Insertable<ImageItemData> {
     orientation: orientation ?? this.orientation,
     modified: modified ?? this.modified,
     size: size ?? this.size,
+    blurhash: blurhash ?? this.blurhash,
     like: like ?? this.like,
   );
   ImageItemData copyWithCompanion(ImageItemCompanion data) {
@@ -394,6 +425,7 @@ class ImageItemData extends DataClass implements Insertable<ImageItemData> {
           : this.orientation,
       modified: data.modified.present ? data.modified.value : this.modified,
       size: data.size.present ? data.size.value : this.size,
+      blurhash: data.blurhash.present ? data.blurhash.value : this.blurhash,
       like: data.like.present ? data.like.value : this.like,
     );
   }
@@ -410,6 +442,7 @@ class ImageItemData extends DataClass implements Insertable<ImageItemData> {
           ..write('orientation: $orientation, ')
           ..write('modified: $modified, ')
           ..write('size: $size, ')
+          ..write('blurhash: $blurhash, ')
           ..write('like: $like')
           ..write(')'))
         .toString();
@@ -426,6 +459,7 @@ class ImageItemData extends DataClass implements Insertable<ImageItemData> {
     orientation,
     modified,
     size,
+    blurhash,
     like,
   );
   @override
@@ -441,6 +475,7 @@ class ImageItemData extends DataClass implements Insertable<ImageItemData> {
           other.orientation == this.orientation &&
           other.modified == this.modified &&
           other.size == this.size &&
+          other.blurhash == this.blurhash &&
           other.like == this.like);
 }
 
@@ -454,6 +489,7 @@ class ImageItemCompanion extends UpdateCompanion<ImageItemData> {
   final Value<int> orientation;
   final Value<String> modified;
   final Value<int> size;
+  final Value<String> blurhash;
   final Value<bool> like;
   final Value<int> rowid;
   const ImageItemCompanion({
@@ -466,6 +502,7 @@ class ImageItemCompanion extends UpdateCompanion<ImageItemData> {
     this.orientation = const Value.absent(),
     this.modified = const Value.absent(),
     this.size = const Value.absent(),
+    this.blurhash = const Value.absent(),
     this.like = const Value.absent(),
     this.rowid = const Value.absent(),
   });
@@ -479,6 +516,7 @@ class ImageItemCompanion extends UpdateCompanion<ImageItemData> {
     required int orientation,
     required String modified,
     required int size,
+    this.blurhash = const Value.absent(),
     required bool like,
     this.rowid = const Value.absent(),
   }) : id = Value(id),
@@ -501,6 +539,7 @@ class ImageItemCompanion extends UpdateCompanion<ImageItemData> {
     Expression<int>? orientation,
     Expression<String>? modified,
     Expression<int>? size,
+    Expression<String>? blurhash,
     Expression<bool>? like,
     Expression<int>? rowid,
   }) {
@@ -514,6 +553,7 @@ class ImageItemCompanion extends UpdateCompanion<ImageItemData> {
       if (orientation != null) 'orientation': orientation,
       if (modified != null) 'modified': modified,
       if (size != null) 'size': size,
+      if (blurhash != null) 'blurhash': blurhash,
       if (like != null) 'like': like,
       if (rowid != null) 'rowid': rowid,
     });
@@ -529,6 +569,7 @@ class ImageItemCompanion extends UpdateCompanion<ImageItemData> {
     Value<int>? orientation,
     Value<String>? modified,
     Value<int>? size,
+    Value<String>? blurhash,
     Value<bool>? like,
     Value<int>? rowid,
   }) {
@@ -542,6 +583,7 @@ class ImageItemCompanion extends UpdateCompanion<ImageItemData> {
       orientation: orientation ?? this.orientation,
       modified: modified ?? this.modified,
       size: size ?? this.size,
+      blurhash: blurhash ?? this.blurhash,
       like: like ?? this.like,
       rowid: rowid ?? this.rowid,
     );
@@ -577,6 +619,9 @@ class ImageItemCompanion extends UpdateCompanion<ImageItemData> {
     if (size.present) {
       map['size'] = Variable<int>(size.value);
     }
+    if (blurhash.present) {
+      map['blurhash'] = Variable<String>(blurhash.value);
+    }
     if (like.present) {
       map['like'] = Variable<bool>(like.value);
     }
@@ -598,6 +643,7 @@ class ImageItemCompanion extends UpdateCompanion<ImageItemData> {
           ..write('orientation: $orientation, ')
           ..write('modified: $modified, ')
           ..write('size: $size, ')
+          ..write('blurhash: $blurhash, ')
           ..write('like: $like, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -626,6 +672,7 @@ typedef $$ImageItemTableCreateCompanionBuilder = ImageItemCompanion Function({
   required int orientation,
   required String modified,
   required int size,
+  Value<String> blurhash,
   required bool like,
   Value<int> rowid,
 });
@@ -639,6 +686,7 @@ typedef $$ImageItemTableUpdateCompanionBuilder = ImageItemCompanion Function({
   Value<int> orientation,
   Value<String> modified,
   Value<int> size,
+  Value<String> blurhash,
   Value<bool> like,
   Value<int> rowid,
 });
@@ -694,6 +742,11 @@ class $$ImageItemTableFilterComposer
 
   ColumnFilters<int> get size => $composableBuilder(
     column: $table.size,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get blurhash => $composableBuilder(
+    column: $table.blurhash,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -757,6 +810,11 @@ class $$ImageItemTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get blurhash => $composableBuilder(
+    column: $table.blurhash,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<bool> get like => $composableBuilder(
     column: $table.like,
     builder: (column) => ColumnOrderings(column),
@@ -800,6 +858,9 @@ class $$ImageItemTableAnnotationComposer
 
   GeneratedColumn<int> get size =>
       $composableBuilder(column: $table.size, builder: (column) => column);
+
+  GeneratedColumn<String> get blurhash =>
+      $composableBuilder(column: $table.blurhash, builder: (column) => column);
 
   GeneratedColumn<bool> get like =>
       $composableBuilder(column: $table.like, builder: (column) => column);
@@ -845,6 +906,7 @@ class $$ImageItemTableTableManager
                 Value<int> orientation = const Value.absent(),
                 Value<String> modified = const Value.absent(),
                 Value<int> size = const Value.absent(),
+                Value<String> blurhash = const Value.absent(),
                 Value<bool> like = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ImageItemCompanion(
@@ -857,6 +919,7 @@ class $$ImageItemTableTableManager
                 orientation: orientation,
                 modified: modified,
                 size: size,
+                blurhash: blurhash,
                 like: like,
                 rowid: rowid,
               ),
@@ -871,6 +934,7 @@ class $$ImageItemTableTableManager
                 required int orientation,
                 required String modified,
                 required int size,
+                Value<String> blurhash = const Value.absent(),
                 required bool like,
                 Value<int> rowid = const Value.absent(),
               }) => ImageItemCompanion.insert(
@@ -883,11 +947,21 @@ class $$ImageItemTableTableManager
                 orientation: orientation,
                 modified: modified,
                 size: size,
+                blurhash: blurhash,
                 like: like,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map(
+                (e) => (
+                  e.readTable<$ImageItemTable, ImageItemData>(table),
+                  BaseReferences<_$AppDatabase, $ImageItemTable, ImageItemData>(
+                    db,
+                    table,
+                    e,
+                  ),
+                ),
+              )
               .toList(),
           prefetchHooksCallback: null,
         ),

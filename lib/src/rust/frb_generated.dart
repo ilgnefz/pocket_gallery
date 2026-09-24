@@ -71,7 +71,7 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
   String get codegenVersion => '2.13.0';
 
   @override
-  int get rustContentHash => -1286797621;
+  int get rustContentHash => -1772681948;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
@@ -83,6 +83,8 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
 }
 
 abstract class RustLibApi extends BaseApi {
+  Future<String> crateApiFileGenerateBlurhash({required String path});
+
   List<ImageFile> crateApiFileGetAllImage({
     required String folder,
     required List<ImageFile> existImages,
@@ -105,6 +107,34 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   });
 
   @override
+  Future<String> crateApiFileGenerateBlurhash({required String path}) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_String(path, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 1,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_String,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiFileGenerateBlurhashConstMeta,
+        argValues: [path],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiFileGenerateBlurhashConstMeta =>
+      const TaskConstMeta(debugName: "generate_blurhash", argNames: ["path"]);
+
+  @override
   List<ImageFile> crateApiFileGetAllImage({
     required String folder,
     required List<ImageFile> existImages,
@@ -117,7 +147,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           sse_encode_String(folder, serializer);
           sse_encode_list_image_file(existImages, serializer);
           sse_encode_bool(recursive, serializer);
-          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 1)!;
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 2)!;
         },
         codec: SseCodec(
           decodeSuccessData: sse_decode_list_image_file,
@@ -142,7 +172,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         callFfi: () {
           final serializer = SseSerializer(generalizedFrbRustBinding);
           sse_encode_String(name, serializer);
-          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 2)!;
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 3)!;
         },
         codec: SseCodec(
           decodeSuccessData: sse_decode_String,
@@ -167,7 +197,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 3,
+            funcId: 4,
             port: port_,
           );
         },
@@ -192,7 +222,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         callFfi: () {
           final serializer = SseSerializer(generalizedFrbRustBinding);
           sse_encode_String(path, serializer);
-          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 4)!;
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 5)!;
         },
         codec: SseCodec(
           decodeSuccessData: sse_decode_unit,
@@ -246,8 +276,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   ImageFile dco_decode_image_file(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 10)
-      throw Exception('unexpected arr length: expect 10 but see ${arr.length}');
+    if (arr.length != 11)
+      throw Exception('unexpected arr length: expect 11 but see ${arr.length}');
     return ImageFile(
       id: dco_decode_String(arr[0]),
       name: dco_decode_String(arr[1]),
@@ -258,7 +288,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       orientation: dco_decode_image_orientation(arr[6]),
       modified: dco_decode_CastedPrimitive_u_64(arr[7]),
       size: dco_decode_CastedPrimitive_u_64(arr[8]),
-      like: dco_decode_bool(arr[9]),
+      blurhash: dco_decode_String(arr[9]),
+      like: dco_decode_bool(arr[10]),
     );
   }
 
@@ -349,6 +380,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     var var_orientation = sse_decode_image_orientation(deserializer);
     var var_modified = sse_decode_CastedPrimitive_u_64(deserializer);
     var var_size = sse_decode_CastedPrimitive_u_64(deserializer);
+    var var_blurhash = sse_decode_String(deserializer);
     var var_like = sse_decode_bool(deserializer);
     return ImageFile(
       id: var_id,
@@ -360,6 +392,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       orientation: var_orientation,
       modified: var_modified,
       size: var_size,
+      blurhash: var_blurhash,
       like: var_like,
     );
   }
@@ -455,6 +488,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_image_orientation(self.orientation, serializer);
     sse_encode_CastedPrimitive_u_64(self.modified, serializer);
     sse_encode_CastedPrimitive_u_64(self.size, serializer);
+    sse_encode_String(self.blurhash, serializer);
     sse_encode_bool(self.like, serializer);
   }
 

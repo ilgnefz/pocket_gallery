@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_blurhash/flutter_blurhash.dart';
 import 'package:pocket_gallery/component/image.dart';
 import 'package:pocket_gallery/enum/enum.dart';
 import 'package:pocket_gallery/service/app.dart';
@@ -32,11 +33,30 @@ class ImageView extends StatelessWidget {
             errorBuilder: (_, _, _) => ErrorWidget('图片加载失败'),
             frameBuilder: (_, child, frame, wasSynchronouslyLoaded) {
               if (wasSynchronouslyLoaded) return child;
-              return AnimatedSwitcher(
-                duration: const Duration(milliseconds: 200),
-                child: frame != null
-                    ? child
-                    : const CircularProgressIndicator(strokeWidth: 2),
+              return Stack(
+                alignment: Alignment.center,
+                fit: StackFit.loose,
+                children: [
+                  if (image.blurhash.isNotEmpty)
+                    AspectRatio(
+                      aspectRatio: image.width / image.height,
+                      child: BlurHash(hash: image.blurhash),
+                    ),
+                  AnimatedOpacity(
+                    opacity: frame != null ? 1.0 : 0.0,
+                    duration: const Duration(milliseconds: 400),
+                    curve: Curves.easeInOut,
+                    child: child,
+                  ),
+                  if (frame == null && image.blurhash.isEmpty)
+                    const Center(
+                      child: SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                    ),
+                ],
               );
             },
           ),

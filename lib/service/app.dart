@@ -35,6 +35,7 @@ Future<void> addFolders() async {
       debugPrint('存储了 ${files.length} 条数据到数据库');
     }());
   }
+  await getBlurHash();
   await Future.wait(tasks);
   await StorageService.setStringList(AppKey.folders, FileStore.folders());
 }
@@ -87,6 +88,7 @@ Future<void> loadImages() async {
         orientation: ImageOrientation.values[item.orientation],
         modified: int.parse(item.modified),
         size: item.size,
+        blurhash: item.blurhash,
         like: item.like,
       ),
     );
@@ -95,6 +97,25 @@ Future<void> loadImages() async {
   await FileStore.addAll(files, false);
   debugPrint('读取了 ${files.length} 条数据');
   StatusStore.updateLoading(false);
+}
+
+Future<void> getBlurHash() async {
+  debugPrint('开始获取图片的 blurhash');
+  final targets = FileStore.list().where((e) => e.blurhash.isEmpty).toList();
+  if (targets.isEmpty) return;
+  // 受限并发：避免一次性解码过多大图吃满 CPU/内存
+  const concurrency = 4;
+  var index = 0;
+  Future<void> worker() async {
+    while (index < targets.length) {
+      final file = targets[index++];
+      final hash = await generateBlurhash(path: file.path);
+      if (hash.isNotEmpty) await FileStore.updateBlurHash(file, hash);
+    }
+  }
+
+  await Future.wait(List.generate(concurrency, (_) => worker()));
+  debugPrint('结束获取图片的 blurhash');
 }
 
 Future<void> previewImage(BuildContext context, ImageFile image) async {

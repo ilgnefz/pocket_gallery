@@ -1,5 +1,7 @@
 use std::{os::windows::fs::MetadataExt, path::Path};
 
+use blurhash::encode;
+use image::GenericImageView;
 use jwalk::WalkDir;
 use uuid::Uuid;
 
@@ -86,6 +88,8 @@ fn get_image_info(path: &Path) -> ImageFile {
         size = meta.len();
     }
 
+    let blurhash = String::new();
+
     ImageFile {
         id,
         name,
@@ -96,6 +100,7 @@ fn get_image_info(path: &Path) -> ImageFile {
         orientation,
         modified,
         size,
+        blurhash,
         like: false,
     }
 }
@@ -110,4 +115,30 @@ fn get_orientation(width: usize, height: usize) -> ImageOrientation {
     } else {
         ImageOrientation::Other
     }
+}
+
+pub fn generate_blurhash(path: String) -> String {
+    let img = match open_image(Path::new(&path)) {
+        Some(img) => img,
+        None => {
+            println!("打开图片出错(扩展名与内容不匹配或文件损坏): {:?}", path);
+            return String::new();
+        }
+    };
+    let small = img.thumbnail(32, 32);
+    let (width, height) = small.dimensions();
+    let rgba = small.to_rgba8();
+    std::panic::catch_unwind(|| encode(4, 3, width, height, rgba.as_raw()))
+        .ok()
+        .and_then(Result::ok)
+        .unwrap_or_default()
+}
+
+fn open_image(path: &Path) -> Option<image::DynamicImage> {
+    image::ImageReader::open(path)
+        .ok()?
+        .with_guessed_format()
+        .ok()?
+        .decode()
+        .ok()
 }

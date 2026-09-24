@@ -20,14 +20,15 @@ class _HomeViewState extends State<HomeView> {
     Future.delayed(Duration.zero, () async {
       await loadImages();
       await refreshFolders();
+      await getBlurHash();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: DragToResizeArea(
-        child: Column(
+    return DragToResizeArea(
+      child: Scaffold(
+        body: Column(
           children: [
             TitleBarView(),
             TopView(),

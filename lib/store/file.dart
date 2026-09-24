@@ -25,6 +25,17 @@ class FileStore {
     await StorageService.setStringList(AppKey.foldersOrder, folders);
   }
 
+  static Future<void> updateBlurHash(ImageFile image, String hashBlur) async {
+    final currentList = list.value;
+    int index = currentList.indexWhere((e) => e.path == image.path);
+    if (index != -1) {
+      final ImageFile target = currentList[index];
+      target.blurhash = hashBlur;
+      list.set(currentList, force: true);
+      await DatabaseService.updateBlurHash(target.id, target.blurhash);
+    }
+  }
+
   static Future<void> updateLike(ImageFile image) async {
     final currentList = list.value;
     int index = currentList.indexWhere((e) => e.path == image.path);

@@ -8,7 +8,7 @@ import 'model.dart';
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-// These functions are ignored because they are not marked as `pub`: `get_image_info`, `get_orientation`, `is_image`
+// These functions are ignored because they are not marked as `pub`: `get_image_info`, `get_orientation`, `is_image`, `open_image`
 
 List<ImageFile> getAllImage({
   required String folder,
@@ -19,3 +19,6 @@ List<ImageFile> getAllImage({
   existImages: existImages,
   recursive: recursive,
 );
+
+Future<String> generateBlurhash({required String path}) =>
+    RustLib.instance.api.crateApiFileGenerateBlurhash(path: path);

@@ -22,6 +22,8 @@ pub struct ImageFile {
     pub modified: u64,
     pub size: u64,
     #[frb(non_final)]
+    pub blurhash: String,
+    #[frb(non_final)]
     pub like: bool,
 }
 
