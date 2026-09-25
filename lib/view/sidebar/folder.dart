@@ -1,10 +1,10 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:pocket_gallery/component/folder_item.dart';
 import 'package:pocket_gallery/constant/num.dart';
 import 'package:pocket_gallery/store/file.dart';
 import 'package:pocket_gallery/store/status.dart';
-import 'package:pocket_gallery/view/siderbar/folder_item.dart';
 import 'package:signals/signals_flutter.dart';
 
 class SidebarFolders extends StatefulWidget {
@@ -41,7 +41,7 @@ class _SidebarFoldersState extends State<SidebarFolders> {
             buildDefaultDragHandles: false,
             proxyDecorator: (proxy, original, information) {
               return Material(
-                color: Theme.of(context).scaffoldBackgroundColor,
+                color: Colors.white.withValues(alpha: .8),
                 elevation: 2,
                 borderRadius: BorderRadius.circular(4),
                 shadowColor: Colors.black,

@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:isolate';
 
+import 'package:desktop_drop/desktop_drop.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:pocket_gallery/constant/key.dart';
@@ -16,10 +17,25 @@ import 'package:pocket_gallery/view/content/preview.dart';
 
 import 'database.dart';
 
+Future<void> dragFolders(List<DropItem> list) async {
+  List<String> folders = [];
+  for (DropItem file in list) {
+    FileSystemEntityType type = FileSystemEntity.typeSync(file.path);
+    if (type == FileSystemEntityType.directory) {
+      folders.add(file.path);
+    }
+  }
+  await parseFolders(folders);
+}
+
 Future<void> addFolders() async {
   final List<String?> folders = await getDirectoryPaths();
   if (folders.isEmpty) return;
   // 并行扫描所有文件夹，并等待全部完成后再持久化，避免竞态
+  await parseFolders(folders);
+}
+
+Future<void> parseFolders(List<String?> folders) async {
   final tasks = <Future<void>>[];
   for (String? folder in folders) {
     if (folder == null) continue;
@@ -135,9 +151,9 @@ Future<void> findImage(ImageFile image) async {
   await Process.run('explorer.exe', ['/select,', image.path]);
 }
 
-Future<void> likeImage(ImageFile image) async {
+Future<void> likeImage(ImageFile image, [bool isPreview = false]) async {
   if (!await checkExist(image)) return;
-  await FileStore.updateLike(image);
+  await FileStore.updateLike(image, isPreview);
 }
 
 Future<void> removeFolder(String folder) async {
@@ -153,4 +169,22 @@ Future<bool> checkExist(ImageFile image) async {
     return false;
   }
   return true;
+}
+
+void prev() {
+  List<ImageFile> list = FileStore.sortList();
+  int index = list.indexWhere(
+    (element) => element.path == FileStore.preview()!.path,
+  );
+  index = index == 0 ? list.length - 1 : index - 1;
+  FileStore.updatePreview(list[index]);
+}
+
+void next() {
+  List<ImageFile> list = FileStore.sortList();
+  int index = list.indexWhere(
+    (element) => element.path == FileStore.preview()!.path,
+  );
+  index = index == list.length - 1 ? 0 : index + 1;
+  FileStore.updatePreview(list[index]);
 }

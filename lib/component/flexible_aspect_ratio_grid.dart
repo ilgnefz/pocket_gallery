@@ -23,6 +23,7 @@ class FlexibleAspectRatioGrid extends StatelessWidget {
   final IndexedWidgetBuilder itemBuilder;
   final IndexedAspectRatioBuilder aspectRatioBuilder;
   final double targetHeight;
+  final double maxHeightDeviation;
   final double mainAxisSpacing;
   final double crossAxisSpacing;
 
@@ -34,6 +35,7 @@ class FlexibleAspectRatioGrid extends StatelessWidget {
     required this.itemBuilder,
     required this.aspectRatioBuilder,
     required this.targetHeight,
+    this.maxHeightDeviation = 0.15,
     this.mainAxisSpacing = 0,
     this.crossAxisSpacing = 0,
   }) : assert(itemCount >= 0);
@@ -63,7 +65,18 @@ class FlexibleAspectRatioGrid extends StatelessWidget {
             final bool isLastRow = rowIndex == rows.length - 1;
 
             if (isLastRow) {
-              // 最后一行：固定高度为目标高度，不填满宽度，左对齐
+              // 最后一行：若“占满”后的行高仍在 ±maxHeightDeviation 内则占满，
+              // 否则回退为固定 targetHeight 左对齐（不占满行宽）
+              final fillHeight = _fitHeight(
+                row.ratioSum,
+                row.indices.length,
+                maxWidth,
+              );
+              final within =
+                  (fillHeight / targetHeight - 1).abs() <= maxHeightDeviation;
+              if (within) {
+                return _buildRow(context, row, fillHeight, maxWidth);
+              }
               return _buildRowWithFixedHeight(context, row, targetHeight);
             } else {
               // 其他行：计算实际行高并填满宽度
@@ -82,33 +95,60 @@ class FlexibleAspectRatioGrid extends StatelessWidget {
   /// 将所有条目按宽高比和容器宽度分配到各行
   List<_RowData> _splitIntoRows(BuildContext context, double maxWidth) {
     final rows = <_RowData>[];
-    var currentIndices = <int>[];
-    var currentRatioSum = 0.0;
 
-    for (int i = 0; i < itemCount; i++) {
-      final ratio = aspectRatioBuilder(context, i);
-
-      // 如果当前行已有条目，且加入新条目后预估总宽度会超出可用宽度，则结束当前行
-      if (currentIndices.isNotEmpty &&
-          (currentRatioSum + ratio) * targetHeight >
-              maxWidth - crossAxisSpacing * currentIndices.length) {
-        rows.add(
-          _RowData(indices: List.of(currentIndices), ratioSum: currentRatioSum),
-        );
-        currentIndices = [];
-        currentRatioSum = 0;
+    var index = 0;
+    while (index < itemCount) {
+      // 1. 贪心：以 targetHeight 为基准，尽量多地把条目放入本行
+      double sum = 0;
+      var count = 0;
+      var lastFit = index;
+      for (var i = index; i < itemCount; i++) {
+        final ratio = aspectRatioBuilder(context, i);
+        // sum 是宽高比之和，需乘上 targetHeight 才是预估的累加宽度
+        if (count > 0 &&
+            (sum + ratio) * targetHeight + crossAxisSpacing * count >
+                maxWidth) {
+          break;
+        }
+        sum += ratio;
+        lastFit = i;
+        count++;
       }
 
-      currentIndices.add(i);
-      currentRatioSum += ratio;
-    }
+      // 2. 边界权衡：比较“把 lastFit 留在本行” / “让给下一行” 的行高偏差，
+      //    选择更接近 targetHeight 的切分，把各行高度尽量控制在 ±maxHeightDeviation
+      var end = lastFit;
+      if (count >= 2) {
+        final devIncluded =
+            (_fitHeight(sum, count, maxWidth) / targetHeight - 1).abs();
+        final ratioLast = aspectRatioBuilder(context, lastFit);
+        final devExcluded =
+            (_fitHeight(sum - ratioLast, count - 1, maxWidth) / targetHeight -
+                    1)
+                .abs();
+        if (devExcluded < devIncluded) {
+          end = lastFit - 1;
+          sum -= ratioLast;
+          count -= 1;
+        }
+      }
 
-    // 处理最后一行
-    if (currentIndices.isNotEmpty) {
-      rows.add(_RowData(indices: currentIndices, ratioSum: currentRatioSum));
+      rows.add(
+        _RowData(
+          indices: List.generate(count, (k) => index + k),
+          ratioSum: sum,
+        ),
+      );
+      index = end + 1;
     }
 
     return rows;
+  }
+
+  /// 计算在指定总宽下、给定条目数与宽高比之和时应有的行高
+  double _fitHeight(double ratioSum, int count, double maxWidth) {
+    final available = maxWidth - crossAxisSpacing * (count - 1);
+    return available / ratioSum;
   }
 
   /// 计算一行实际高度，使行内条目按比例缩放后总宽度等于容器宽度

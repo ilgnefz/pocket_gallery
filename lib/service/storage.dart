@@ -21,6 +21,11 @@ class StorageService {
 
   static int? getInt(String key) => _prefs.getInt(key);
 
+  static Future<bool> setDouble(String key, double value) async =>
+      await _prefs.setDouble(key, value);
+
+  static double? getDouble(String key) => _prefs.getDouble(key);
+
   static Future<bool> setStringList(String key, List<String> value) async =>
       await _prefs.setStringList(key, value);
 

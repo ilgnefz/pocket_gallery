@@ -1,13 +1,16 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_blurhash/flutter_blurhash.dart';
+import 'package:pocket_gallery/constant/num.dart';
 import 'package:pocket_gallery/component/image.dart';
 import 'package:pocket_gallery/enum/enum.dart';
 import 'package:pocket_gallery/service/app.dart';
 import 'package:pocket_gallery/src/rust/api/model.dart';
 import 'package:pocket_gallery/src/rust/api/simple.dart';
 import 'package:shadow_widget/shadow_widget.dart';
+import 'package:signals/signals_flutter.dart';
+
+import 'transition.dart';
 
 class ImageView extends StatelessWidget {
   const ImageView({super.key, required this.image, required this.style});
@@ -19,49 +22,32 @@ class ImageView extends StatelessWidget {
   Widget build(BuildContext context) {
     BoxFit fit = style.isEqualHeight ? BoxFit.cover : BoxFit.contain;
 
-    Widget child = LayoutBuilder(
-      builder: (BuildContext context, BoxConstraints constraints) {
-        int w = (constraints.maxWidth * MediaQuery.of(context).devicePixelRatio)
-            .ceil();
-        return SizedBox.expand(
-          child: Image(
-            image: ResizeImage(
-              FileImageWithKey(File(image.path), image.id),
-              width: w,
+    Widget child = SignalBuilder(
+      builder: (BuildContext context) => LayoutBuilder(
+        builder: (BuildContext context, BoxConstraints constraints) {
+          // 解码尺寸固定为滑块上限：滑块变化只改布局不改缓存 key，
+          // 图片不重新加载；侧边栏 push 动画同样不影响
+          double dpr = MediaQuery.of(context).devicePixelRatio;
+          double nominalWidth = style.isEqualHeight
+              ? AppNum.sizeMax * image.width / image.height
+              : AppNum.sizeMax;
+          int w = (nominalWidth * dpr).ceil();
+          return SizedBox.expand(
+            child: Image(
+              image: ResizeImage(
+                FileImageWithKey(File(image.path), image.id),
+                width: w,
+              ),
+              fit: fit,
+              errorBuilder: (_, _, _) => ErrorWidget('图片加载失败'),
+              frameBuilder: (_, child, frame, wasSynchronouslyLoaded) {
+                if (wasSynchronouslyLoaded) return child;
+                return TransitionView(image: image, frame: frame, child: child);
+              },
             ),
-            fit: fit,
-            errorBuilder: (_, _, _) => ErrorWidget('图片加载失败'),
-            frameBuilder: (_, child, frame, wasSynchronouslyLoaded) {
-              if (wasSynchronouslyLoaded) return child;
-              return Stack(
-                alignment: Alignment.center,
-                fit: StackFit.loose,
-                children: [
-                  if (image.blurhash.isNotEmpty)
-                    AspectRatio(
-                      aspectRatio: image.width / image.height,
-                      child: BlurHash(hash: image.blurhash),
-                    ),
-                  AnimatedOpacity(
-                    opacity: frame != null ? 1.0 : 0.0,
-                    duration: const Duration(milliseconds: 400),
-                    curve: Curves.easeInOut,
-                    child: child,
-                  ),
-                  if (frame == null && image.blurhash.isEmpty)
-                    const Center(
-                      child: SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      ),
-                    ),
-                ],
-              );
-            },
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
 
     child = style.isEqualHeight

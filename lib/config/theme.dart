@@ -33,6 +33,20 @@ class ThemeConfig {
         border: InputBorder.none,
         isCollapsed: true,
       ),
+      sliderTheme: SliderThemeData(
+        thumbShape: RoundSliderThumbShape(
+          enabledThumbRadius: 7.0,
+          disabledThumbRadius: 7.0,
+        ),
+        overlayShape: RoundSliderOverlayShape(overlayRadius: 15.0),
+      ),
+      tabBarTheme: TabBarThemeData(
+        dividerHeight: 0.0,
+        dividerColor: Colors.transparent,
+        indicatorColor: Colors.transparent,
+        labelColor: Colors.black,
+        unselectedLabelColor: Colors.grey,
+      ),
       textTheme: TextTheme(
         titleSmall: TextStyle(
           fontSize: 13.0,

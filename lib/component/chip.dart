@@ -27,15 +27,12 @@ class _SidebarChipState extends State<SidebarChip> {
       child: InkWell(
         mouseCursor: SystemMouseCursors.click,
         onTap: widget.onTap,
-        child: ColoredBox(
-          color: Colors.white,
-          child: Text(
-            widget.label,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: widget.selected || isHover
-                  ? Theme.of(context).primaryColor
-                  : Color(0xFF121212),
-            ),
+        child: Text(
+          widget.label,
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            color: widget.selected || isHover
+                ? Theme.of(context).primaryColor
+                : Color(0xFF121212),
           ),
         ),
       ),

@@ -36,13 +36,15 @@ class FileStore {
     }
   }
 
-  static Future<void> updateLike(ImageFile image) async {
+  static Future<void> updateLike(ImageFile image, bool isPreview) async {
     final currentList = list.value;
     int index = currentList.indexWhere((e) => e.path == image.path);
     if (index != -1) {
       final target = currentList[index];
       target.like = !target.like;
       list.set(currentList, force: true);
+      // 同步通知 preview 信号，否则预览页 SignalBuilder 无法监听到点赞状态变化
+      if (isPreview) preview.set(preview.value, force: true);
       await DatabaseService.updateLike(target.id, target.like);
     }
   }
@@ -242,4 +244,12 @@ class FileStore {
 
   static final preview = Signal<ImageFile?>(null);
   static void updatePreview(ImageFile value) => preview.value = value;
+
+  static final size = Signal<double>(
+    StorageService.getDouble(AppKey.size) ?? 240.0,
+  );
+  static void updateSize(double value) {
+    size.value = value;
+    StorageService.setDouble(AppKey.size, value);
+  }
 }

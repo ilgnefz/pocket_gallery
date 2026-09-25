@@ -1,19 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:pocket_gallery/service/app.dart';
-import 'package:pocket_gallery/view/content/content.dart';
-import 'package:pocket_gallery/view/siderbar/sidebar.dart';
-import 'package:pocket_gallery/view/top/title_bar.dart';
+import 'package:pocket_gallery/view/sidebar/sidebar.dart';
 import 'package:pocket_gallery/view/top/top.dart';
 import 'package:window_manager/window_manager.dart';
 
-class HomeView extends StatefulWidget {
-  const HomeView({super.key});
+class FutureHomeView extends StatefulWidget {
+  const FutureHomeView({super.key});
 
   @override
-  State<HomeView> createState() => _HomeViewState();
+  State<FutureHomeView> createState() => _FutureHomeViewState();
 }
 
-class _HomeViewState extends State<HomeView> {
+class _FutureHomeViewState extends State<FutureHomeView> {
   @override
   void initState() {
     super.initState();
@@ -30,21 +28,8 @@ class _HomeViewState extends State<HomeView> {
       child: Scaffold(
         body: Column(
           children: [
-            TitleBarView(),
             TopView(),
-            Expanded(
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Padding(
-                      padding: const .only(top: 4.0),
-                      child: ContentView(),
-                    ),
-                  ),
-                  SidebarView(),
-                ],
-              ),
-            ),
+            Expanded(child: SidebarView()),
           ],
         ),
       ),

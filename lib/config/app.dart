@@ -14,7 +14,7 @@ class AppConfig {
 
     await StorageService.init();
 
-    final Size size = Size(1000, 600);
+    final Size size = Size(1016, 600);
 
     await windowManager.ensureInitialized();
 
