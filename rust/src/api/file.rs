@@ -5,7 +5,7 @@ use image::GenericImageView;
 use jwalk::WalkDir;
 use uuid::Uuid;
 
-use crate::api::model::{ImageFile, ImageOrientation};
+use crate::api::model::{ImageFile, ImageOrientation, ScanResult};
 
 #[flutter_rust_bridge::frb(sync)]
 pub fn get_all_image(
@@ -13,8 +13,11 @@ pub fn get_all_image(
     exist_images: Vec<ImageFile>,
     #[frb(default = true)]
     recursive: bool,
-) -> Vec<ImageFile> {
-    let mut images: Vec<ImageFile> = Vec::new();
+) -> ScanResult {
+    let mut result = ScanResult {
+        added: Vec::new(),
+        changed: Vec::new(),
+    };
     let walker = if recursive {
         WalkDir::new(folder).sort(true)
     } else {
@@ -29,17 +32,32 @@ pub fn get_all_image(
             if !is_image(&path) {
                 continue;
             }
-            if exist_images
-                .iter()
-                .any(|i| i.path == path.to_string_lossy())
-            {
-                continue;
+            let path_str = path.to_string_lossy();
+            let mut meta_modified = 0u64;
+            let mut meta_size = 0u64;
+            if let Ok(meta) = std::fs::metadata(&path) {
+                meta_modified = meta.last_write_time();
+                meta_size = meta.len();
             }
-            let image = get_image_info(&path);
-            images.push(image);
+            // 用 path + modified + size 组合指纹判断，
+            // 避免"改名后其他文件占用同名路径"导致的脏数据残留
+            match exist_images.iter().find(|i| i.path == path_str) {
+                Some(exist)
+                    if exist.modified == meta_modified && exist.size == meta_size =>
+                {
+                    // 文件未变化，跳过
+                }
+                Some(_) => {
+                    // 路径相同但内容已变化：旧记录过期，重建新 ImageFile（新 id）
+                    result.changed.push(get_image_info(&path));
+                }
+                None => {
+                    result.added.push(get_image_info(&path));
+                }
+            }
         }
     }
-    images
+    result
 }
 
 fn is_image(path: &Path) -> bool {

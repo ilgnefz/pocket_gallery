@@ -30,7 +30,9 @@ class OperateView extends StatelessWidget {
               // BoxIcon(
               //   icon: Icons.info_outline_rounded,
               //   iconSize: 20,
-              //   onTap: () {},
+              //   onTap: () {
+              //     debugPrint('${image.width} * ${image.height} --- ${image.size}');
+              //   },
               // ),
               BoxIcon(
                 icon: Icons.desktop_mac_rounded,

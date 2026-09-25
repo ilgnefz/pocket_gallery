@@ -10,7 +10,7 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
 // These functions are ignored because they are not marked as `pub`: `get_image_info`, `get_orientation`, `is_image`, `open_image`
 
-List<ImageFile> getAllImage({
+ScanResult getAllImage({
   required String folder,
   required List<ImageFile> existImages,
   bool recursive = true,

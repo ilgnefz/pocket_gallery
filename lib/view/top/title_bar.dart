@@ -60,7 +60,7 @@ class _TitleBarViewState extends State<TitleBarView> {
               child: Row(
                 mainAxisSize: .max,
                 children: [
-                  Image.asset(AppImage.logo, height: 20.0),
+                  Image.asset(AppImage.logo, height: 24.0),
                   const SizedBox(width: 8),
                   Text('PocketGallery', style: TextStyle(fontSize: 13)),
                   ...widget.leading,

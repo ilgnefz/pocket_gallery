@@ -27,6 +27,12 @@ pub struct ImageFile {
     pub like: bool,
 }
 
+#[derive(Debug)]
+pub struct ScanResult {
+    pub added: Vec<ImageFile>,
+    pub changed: Vec<ImageFile>,
+}
+
 // #[derive(Debug)]
 // pub struct FileFolder {
 //     pub files: Vec<ImageFile>,

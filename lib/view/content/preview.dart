@@ -1,8 +1,8 @@
-import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:pocket_gallery/component/image.dart';
 import 'package:pocket_gallery/service/app.dart';
 import 'package:pocket_gallery/src/rust/api/model.dart';
 import 'package:pocket_gallery/store/file.dart';
@@ -19,7 +19,6 @@ class ContentPreview extends StatefulWidget {
 
 class _ContentPreviewState extends State<ContentPreview> {
   bool _showCom = true;
-  Timer? _hideTimer;
   // 记录已预加载的当前张下标，避免 build 重复触发
   int _precacheIndex = -1;
 
@@ -28,38 +27,23 @@ class _ContentPreviewState extends State<ContentPreview> {
     for (int offset = -range; offset <= range; offset++) {
       if (offset == 0) continue;
       final idx = (current + offset + list.length) % list.length;
-      precacheImage(FileImage(File(list[idx].path)), context);
+      // 缓存键必须与预览实际渲染的 FileImageWithKey 一致，预加载才命中
+      precacheImage(
+        FileImageWithKey(
+          File(list[idx].path),
+          list[idx].id,
+        ),
+        context,
+      );
     }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _kick();
-  }
-
-  @override
-  void dispose() {
-    _hideTimer?.cancel();
-    super.dispose();
-  }
-
-  void _kick() {
-    setState(() => _showCom = true);
-    _hideTimer?.cancel();
-    _hideTimer = Timer(const Duration(seconds: 3), () {
-      if (mounted) setState(() => _showCom = false);
-    });
   }
 
   void _onHover(PointerHoverEvent event) {
     final height = context.size?.height ?? 0;
-    // 仅当鼠标位于画面底部 1/4 区域内时保持显示
-    if (event.position.dy >= height * 3 / 4) {
-      _kick();
-    } else {
-      _hideTimer?.cancel();
-      if (mounted) setState(() => _showCom = false);
+    // 直接由鼠标是否位于画面底部 1/4 区域决定显示与否
+    final show = event.position.dy >= height * 3 / 4;
+    if (mounted && show != _showCom) {
+      setState(() => _showCom = show);
     }
   }
 
@@ -100,7 +84,6 @@ class _ContentPreviewState extends State<ContentPreview> {
             return MouseRegion(
               onHover: _onHover,
               onExit: (_) {
-                _hideTimer?.cancel();
                 if (mounted) setState(() => _showCom = false);
               },
               child: Stack(
@@ -113,8 +96,11 @@ class _ContentPreviewState extends State<ContentPreview> {
                       // minScale: .5,
                       maxScale: 10,
                       // boundaryMargin: EdgeInsets.all(double.infinity),
-                      child: Image.file(
-                        File(image.path),
+                      child: Image(
+                        image: FileImageWithKey(
+                          File(image.path),
+                          image.id,
+                        ),
                         errorBuilder: (_, _, _) => ErrorWidget('图片加载失败'),
                         frameBuilder:
                             (_, child, frame, wasSynchronouslyLoaded) {

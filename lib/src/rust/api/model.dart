@@ -7,7 +7,7 @@ import '../frb_generated.dart';
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `fmt`, `fmt`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `fmt`, `fmt`, `fmt`
 
 class ImageFile {
   final String id;
@@ -69,3 +69,21 @@ class ImageFile {
 }
 
 enum ImageOrientation { all, landscape, portrait, square, other }
+
+class ScanResult {
+  final List<ImageFile> added;
+  final List<ImageFile> changed;
+
+  const ScanResult({required this.added, required this.changed});
+
+  @override
+  int get hashCode => added.hashCode ^ changed.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ScanResult &&
+          runtimeType == other.runtimeType &&
+          added == other.added &&
+          changed == other.changed;
+}

@@ -42,13 +42,18 @@ Future<void> parseFolders(List<String?> folders) async {
     tasks.add(() async {
       final existImages = FileStore.list();
       var cancel = NotificationService.show(folder);
-      final files = await Isolate.run(() async {
+      final result = await Isolate.run(() async {
         await RustLib.init();
         return getAllImage(folder: folder, existImages: existImages);
       });
       cancel();
-      await FileStore.addAll(files);
-      debugPrint('存储了 ${files.length} 条数据到数据库');
+      // changed：路径被新文件占用，旧记录（旧 id）已过期，先移除
+      final changedPaths = result.changed.map((e) => e.path).toSet();
+      for (final p in changedPaths) {
+        await FileStore.removeByPath(p);
+      }
+      await FileStore.addAll([...result.added, ...result.changed]);
+      debugPrint('存储了 ${result.added.length + result.changed.length} 条数据到数据库');
     }());
   }
   await getBlurHash();
@@ -61,7 +66,7 @@ Future<void> refreshFolders() async {
   await FileStore.removeNotExist();
   final existImages = FileStore.list();
   for (String folder in folders) {
-    List<ImageFile> files = await Isolate.run(() async {
+    final result = await Isolate.run(() async {
       await RustLib.init();
       return getAllImage(
         folder: folder,
@@ -69,8 +74,13 @@ Future<void> refreshFolders() async {
         recursive: false,
       );
     });
-    await FileStore.addAll(files);
-    debugPrint('新添加了 ${files.length} 张图片');
+    // changed：路径被新文件占用，旧记录（旧 id）已过期，先移除
+    final changedPaths = result.changed.map((e) => e.path).toSet();
+    for (final p in changedPaths) {
+      await FileStore.removeByPath(p);
+    }
+    await FileStore.addAll([...result.added, ...result.changed]);
+    debugPrint('新添加了 ${result.added.length + result.changed.length} 张图片');
   }
 }
 

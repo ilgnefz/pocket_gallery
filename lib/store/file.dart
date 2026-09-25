@@ -102,6 +102,15 @@ class FileStore {
     await DatabaseService.removeById(value.id);
   }
 
+  static Future<void> removeByPath(String path) async {
+    final targets = list().where((e) => e.path == path).toList();
+    if (targets.isEmpty) return;
+    list.removeWhere((e) => e.path == path);
+    await Future.wait(
+      targets.map((e) => DatabaseService.removeById(e.id)),
+    );
+  }
+
   static Future<void> removeFolder(String folder) async {
     list.removeWhere((e) => e.folder == folder);
     await DatabaseService.removeFolder(folder);

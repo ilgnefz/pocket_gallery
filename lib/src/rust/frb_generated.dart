@@ -85,7 +85,7 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
 abstract class RustLibApi extends BaseApi {
   Future<String> crateApiFileGenerateBlurhash({required String path});
 
-  List<ImageFile> crateApiFileGetAllImage({
+  ScanResult crateApiFileGetAllImage({
     required String folder,
     required List<ImageFile> existImages,
     bool recursive = true,
@@ -135,7 +135,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       const TaskConstMeta(debugName: "generate_blurhash", argNames: ["path"]);
 
   @override
-  List<ImageFile> crateApiFileGetAllImage({
+  ScanResult crateApiFileGetAllImage({
     required String folder,
     required List<ImageFile> existImages,
     bool recursive = true,
@@ -150,7 +150,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 2)!;
         },
         codec: SseCodec(
-          decodeSuccessData: sse_decode_list_image_file,
+          decodeSuccessData: sse_decode_scan_result,
           decodeErrorData: null,
         ),
         constMeta: kCrateApiFileGetAllImageConstMeta,
@@ -312,6 +312,18 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  ScanResult dco_decode_scan_result(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 2)
+      throw Exception('unexpected arr length: expect 2 but see ${arr.length}');
+    return ScanResult(
+      added: dco_decode_list_image_file(arr[0]),
+      changed: dco_decode_list_image_file(arr[1]),
+    );
+  }
+
+  @protected
   BigInt dco_decode_u_64(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return dcoDecodeU64(raw);
@@ -424,6 +436,14 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  ScanResult sse_decode_scan_result(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_added = sse_decode_list_image_file(deserializer);
+    var var_changed = sse_decode_list_image_file(deserializer);
+    return ScanResult(added: var_added, changed: var_changed);
+  }
+
+  @protected
   BigInt sse_decode_u_64(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     return deserializer.buffer.getBigUint64();
@@ -521,6 +541,13 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_i_32(self.length, serializer);
     serializer.buffer.putUint8List(self);
+  }
+
+  @protected
+  void sse_encode_scan_result(ScanResult self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_list_image_file(self.added, serializer);
+    sse_encode_list_image_file(self.changed, serializer);
   }
 
   @protected

@@ -307,6 +307,18 @@ impl SseDecode for Vec<u8> {
     }
 }
 
+impl SseDecode for crate::api::model::ScanResult {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_added = <Vec<crate::api::model::ImageFile>>::sse_decode(deserializer);
+        let mut var_changed = <Vec<crate::api::model::ImageFile>>::sse_decode(deserializer);
+        return crate::api::model::ScanResult {
+            added: var_added,
+            changed: var_changed,
+        };
+    }
+}
+
 impl SseDecode for u64 {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -416,6 +428,24 @@ impl flutter_rust_bridge::IntoIntoDart<crate::api::model::ImageOrientation>
         self
     }
 }
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::model::ScanResult {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.added.into_into_dart().into_dart(),
+            self.changed.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::api::model::ScanResult {}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::model::ScanResult>
+    for crate::api::model::ScanResult
+{
+    fn into_into_dart(self) -> crate::api::model::ScanResult {
+        self
+    }
+}
 
 impl SseEncode for String {
     // Codec=Sse (Serialization based), see doc to use other codecs
@@ -491,6 +521,14 @@ impl SseEncode for Vec<u8> {
         for item in self {
             <u8>::sse_encode(item, serializer);
         }
+    }
+}
+
+impl SseEncode for crate::api::model::ScanResult {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <Vec<crate::api::model::ImageFile>>::sse_encode(self.added, serializer);
+        <Vec<crate::api::model::ImageFile>>::sse_encode(self.changed, serializer);
     }
 }
 
